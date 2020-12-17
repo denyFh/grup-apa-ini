@@ -182,7 +182,7 @@ class insiderDb:
 # d = insiderDb().insert_class()
 # e = insiderDb().insert_student()
 # f = insiderDb().insert_admin()
-g = insiderDb().insert_schedule()
+# g = insiderDb().insert_schedule()
 # h = insiderDb().update_admin()
 # i = insiderDb().update_student()
 # j = insiderDb().update_schedule()
