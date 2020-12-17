@@ -1,3 +1,10 @@
+import sqlite3
+import main as mn
+
+databaseName = 'db_leslesan.db'
+conn = sqlite3.connect(databaseName)
+
+
 class Person:
     def __init__(self, nama, gender, alamat, phone):
         self._nama = nama
@@ -23,6 +30,21 @@ class Person:
     def setPhone(self, phone):
         self._phone = phone
 
+    def lihatdata(self):
+        guestID = ''
+        cekMenu = ''
+        if len(guestID) == 8 and cekMenu == "3":
+            print("List Nama Teacher")
+        elif len(guestID) == 8 and cekMenu == "2":
+            print("List Nama Student")
+
+        if len(guestID) == 5 and cekMenu == "3":
+            print("List Nama Teacher")
+        elif len(guestID) == 5 and cekMenu == "2":
+            print("List Nama Student")
+
+    # def lihatJadwalFree(self):
+
 
 class Teacher(Person):
     def __init__(self, nama, gender, alamat, phone, mapel):
@@ -32,14 +54,30 @@ class Teacher(Person):
     def getMapel(self):
         return self._mapel
 
+    def lihatJadwal(self):
+        print("""
+        -----------Jadwal Mengajar----------
+        |    Kelas    |    Jam Mengajar    |
+        |{}           |{}                  |
+        """.format(Schedule.getKelas, Schedule.getWaktu))
+
 
 class Student(Person):
+    check = mn.Display.guestID
+
     def __init__(self, nama, gender, alamat, phone, kelas):
         super().__init__(nama, gender, alamat, phone)
         self._kelas = kelas
 
     def getKelas(self):
         return self._kelas
+
+    def lihatJadwal(self):
+        print("""
+        ----------------------Jadwal Pelajaran---------------------
+        |   Pengajar   |    Kelas    |            Waktu           |
+        |{}            |{}           |{}, {}, {}                  |
+        """.format(self.getNama, Schedule.getKelas, Schedule.getHari, Schedule.getTanggal, Schedule.getWaktu))
 
 
 class Classes:
