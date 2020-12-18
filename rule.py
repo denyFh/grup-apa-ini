@@ -29,19 +29,31 @@ class Person:
 
     def setPhone(self, phone):
         self._phone = phone
-
-    # def lihatdata(self):
-    #     guestID = ''
-    #     cekMenu = ''
-    #     if len(guestID) == 8 and cekMenu == "3":
-    #         print("List Nama Teacher")
-    #     elif len(guestID) == 8 and cekMenu == "2":
-    #         print("List Nama Student")
-
-    #     if len(guestID) == 5 and cekMenu == "3":
-    #         print("List Nama Teacher")
-    #     elif len(guestID) == 5 and cekMenu == "2":
-    #         print("List Nama Student")
+    @classmethod
+    def dataDiri(self):
+        if len(Display.guestID) == 5:
+            query = c.execute('''\
+                SELECT tab_teachers.teacher_id, tab_teacher.nama, tab_teacher.mapel, tab_teachers.jenis_kelamin
+                WHERE tab_students.student_id = ?''', (Display.guestID,))
+            for row in query:
+                print(f"""
+                    ID: {row[0]}
+                    Nama: {row[1]}
+                    Mata Pelajaran: {row[2]}
+                    Jenis Kelamin: {row[3]}""")          
+        elif len(Display.guestID) == 8:
+                    query = c.execute('''\
+            SELECT tab_students.student_id, tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin
+            FROM tab_students
+            INNER JOIN tab_classes
+            ON tab_students.kelas = tab_classes.class_id
+            WHERE tab_students.student_id = ?''', (Display.guestID,))
+        for row in query:
+            print(f"""
+                ID: {row[0]}
+                Nama: {row[1]}
+                Kelas: {row[2]}
+                Jenis Kelamin: {row[3]}""")
 
 
 class Teacher(Person):
@@ -59,13 +71,19 @@ class Teacher(Person):
         |{}           |{}                  |
         """.format(Schedule.getKelas, Schedule.getWaktu))
 
+    @classmethod
     def dataDiri(self):
-        print("""
-        Nama: {}
-        Mata Pelajaran: {}
-        Jenis Kelamin: {}
-        Alamat: {}
-        Nomor telepon: {}""")
+        query = c.execute('''\
+            SELECT tab_teachers.teacher_id, tab_teacher.nama, tab_teacher.mapel, tab_teacher.jenis_kelamin, tab_teacher.alamat, tab_teacher.phone
+            WHERE tab_students.student_id = ?''', (Display.guestID,))
+        for row in query:
+            print(f"""
+                ID: {row[0]}
+                Nama: {row[1]}
+                Mata Pelajaran: {row[2]}
+                Jenis Kelamin: {row[3]}
+                Alamat: {row[4]}
+                Nomor telepon: {row[5]}""")
 
 
 class Student(Person):
@@ -84,19 +102,22 @@ class Student(Person):
         |{}            |{}           |{}, {}, {}                  |
         """.format(self.getNama, Schedule.getKelas, Schedule.getHari, Schedule.getTanggal, Schedule.getWaktu))
 
+    @classmethod
     def dataDiri(self):
-        data = []
-        query = c.execute(
-            "SELECT * FROM tab_students WHERE student_id=?", (Display.guestID,))
-        query2 = c.execute(
-            "SELECT nama tab_classes WHERE class_id=?", (query[2],))
-        print("""
-            ID: {query[0]}
-            Nama: {query[1]}
-            Kelas: {query2}
-            Jenis Kelamin: {query[3]}
-            Alamat: {query[4]}
-            Nomor telepon: {query[5]}""")
+        query = c.execute('''\
+            SELECT tab_students.student_id, tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
+            FROM tab_students
+            INNER JOIN tab_classes
+            ON tab_students.kelas = tab_classes.class_id
+            WHERE tab_students.student_id = ?''', (Display.guestID,))
+        for row in query:
+            print(f"""
+                ID: {row[0]}
+                Nama: {row[1]}
+                Kelas: {row[2]}
+                Jenis Kelamin: {row[3]}
+                Alamat: {row[4]}
+                Nomor telepon: {row[5]}""")
 
 
 class Classes:
@@ -153,13 +174,15 @@ class Schedule:
     def setNote(self, note):
         self._note = note
 
+
 class Display:
     guestID = None
+
     def __init__(self):
         pass
 
     def Home(self):
-        
+
         check = []
         print("""
             
@@ -219,9 +242,9 @@ class Display:
         while self.cekMenu != "4":
             self.cekMenu = input("\t\tMasukkan Menu : ")
             if self.cekMenu == '1':
-                Student().lihatJadwal()
+                Student.lihatJadwal()
             elif self.cekMenu == '2':
-                Student().dataDiri()
+                Student.dataDiri()
             # elif self.cekMenu == '3':
             #     Person().lihatdata()
             elif self.cekMenu == '4':
@@ -254,7 +277,7 @@ class Display:
     #             print("Menu tidak tersedia")
 
     # def menuAdmin(self):
-    #     print("you are here")
+    #     print("coming soon")
     #     exit()
 
     def exit(self):
@@ -264,4 +287,4 @@ class Display:
         exit()
 
 
-# a = Display().Home()
+a = Display().Home()
