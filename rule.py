@@ -4,6 +4,7 @@ databaseName = 'db_leslesan.db'
 conn = sqlite3.connect(databaseName)
 c = conn.cursor()
 
+#catatan pembuat di akhir kodingan
 
 class Person:
     def __init__(self, nama, gender, alamat, phone):
@@ -234,6 +235,8 @@ class Display:
             \t------------------------HOME-----------------------
             \t------ketik (-quit) untuk membatalkan program------""")
         Display.guestID = input("\t\tMasukkan ID : ")
+        if Display.guestID.isdigit():
+            Display.guestID = int(Display.guestID)
         query = c.execute(
             "SELECT * FROM tab_admins WHERE password=?", (Display.guestID,))
         for row in query:
@@ -247,7 +250,7 @@ class Display:
         if Display.guestID == "-quit":
             Display.exit(self)
             exit()
-        elif len(Display.guestID) == 8:
+        elif len(str(Display.guestID)) == 8:
             query = c.execute(
                 "SELECT * FROM tab_students WHERE student_id=?", (Display.guestID,))
             for row in query:
@@ -258,7 +261,7 @@ class Display:
                 print("\t\t-----ID tidak terdaftar, hubungi administrator-----")
                 check = []
                 Display.Home(self)
-        elif len(Display.guestID) == 5:
+        elif len(str(Display.guestID)) == 5:
             query = c.execute(
                 "SELECT * FROM tab_teachers WHERE teacher_id=?", (Display.guestID,))
             for row in query:
@@ -273,9 +276,17 @@ class Display:
             print("\t\t-----ID tidak terdaftar, hubungi administrator-----")
             Display.Home(self)
 
+    def role(self, x):
+        if type(x) == str:
+            return "Admin"
+        elif type(x) == int:
+            if len(str(x)) == 8:
+                return "Siswa"
+            elif len(str(x)) == 5:
+                return "Guru"
 
     def menuSiswa(self):
-        self.status = ["Siswa", Display.guestID]
+        self.status = [self.role(Display.guestID), Display.guestID]
         print("""
                 -----------Selamat datang, {} {}-----------
                 Silahkan pilih menu yang anda inginkan (1-4):
@@ -293,7 +304,7 @@ class Display:
             if self.cekMenu == '1':
                 Student.dataDiri()
             elif self.cekMenu == '2':
-                Person.dataDiri() 
+                Person.dataDiri()
             elif self.cekMenu == '3':
                 Student.lihatJadwal(self)
             elif self.cekMenu == '4':
@@ -309,13 +320,17 @@ class Display:
             \t------------------Menu Tidak Tersedia--------------""")
 
     def menuGuru(self):
+        self.status = [self.role(Display.guestID), Display.guestID]
         print("""
-            \t---------------------Coming soon-------------------""")
+                -----------Selamat datang, {} {}-----------
+                ---------------------Coming soon-------------------""".format(self.status[0], self.status[1]))
         Display.Home(self)
 
     def menuAdmin(self):
+        self.status = [self.role(Display.guestID), Display.guestID]
         print("""
-            \t---------------------Coming soon-------------------""")
+                -----------Selamat datang, {} {}-----------
+                ---------------------Coming soon-------------------""".format(self.status[0], self.status[1]))
         Display.Home(self)
 
     def exit(self):
@@ -325,4 +340,12 @@ class Display:
         exit()
 
 
-a = Display().Home()
+Display().Home()
+
+# Note:
+# Overriding terdapat pada Parent.lihatJadwal(), Parent.dataDiri(), dan Parent.lihatTeman()
+# Overloading terdapat pada Display.Home()
+# >> Parent.lihatJadwal(); Student.lihatJadwal() - Deny (192410101051)
+# >> Parent.dataDiri(); Student.dataDiri() - Chinta (192410101108)
+# >> Parent.lihatTeman() - Yoppy (192410101092) 
+# >> Display.Home() - Chinta 192410101108 & Deny 192410101051
