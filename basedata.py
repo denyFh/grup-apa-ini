@@ -1,4 +1,4 @@
-import method as oop
+import rule as oop
 import sqlite3
 DbName = 'db_leslesan.db'
 
@@ -170,21 +170,24 @@ class insiderDb:
         # self.c.execute(
         #     "update 'sqlite_sequence' set 'seq' = 11000 where name = 'tab_teachers'")
         self.db.commit()
-
+    def drop(self):
+        self.c.execute("drop table tab_schedules")
+        self.db.commit()
     def close(self):
         self.db.close()
 
 
 # #-----------------FunctionCall--------------------#
-# a = insiderDb().create_table()
+a = insiderDb().create_table()
 # b = insiderDb().insert_teacher()
 # c = insiderDb().update_teacher()
 # d = insiderDb().insert_class()
 # e = insiderDb().insert_student()
 # f = insiderDb().insert_admin()
-# g = insiderDb().insert_schedule()
+g = insiderDb().insert_schedule()
 # h = insiderDb().update_admin()
 # i = insiderDb().update_student()
 # j = insiderDb().update_schedule()
 # k = insiderDb().update_classes()
 # l = insiderDb().close()
+# m = insiderDb().drop()
