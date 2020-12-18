@@ -29,32 +29,20 @@ class Person:
 
     def setPhone(self, phone):
         self._phone = phone
+
     @classmethod
     def dataDiri(self):
-        if len(Display.guestID) == 5:
-            query = c.execute('''\
-                SELECT tab_teachers.teacher_id, tab_teacher.nama, tab_teacher.mapel, tab_teachers.jenis_kelamin
-                WHERE tab_students.student_id = ?''', (Display.guestID,))
-            for row in query:
-                print(f"""
-                    ID: {row[0]}
-                    Nama: {row[1]}
-                    Mata Pelajaran: {row[2]}
-                    Jenis Kelamin: {row[3]}""")          
-        elif len(Display.guestID) == 8:
-                    query = c.execute('''\
-            SELECT tab_students.student_id, tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin
-            FROM tab_students
-            INNER JOIN tab_classes
-            ON tab_students.kelas = tab_classes.class_id
-            WHERE tab_students.student_id = ?''', (Display.guestID,))
+        query = c.execute('''
+                SELECT tab_teachers.nama, tab_teachers.mapel, tab_teachers.jenis_kelamin, tab_teachers.alamat, tab_teachers.phone FROM tab_teachers''')
         for row in query:
             print(f"""
-                ID: {row[0]}
-                Nama: {row[1]}
-                Kelas: {row[2]}
-                Jenis Kelamin: {row[3]}""")
-    
+                    Nama: {row[0]}
+                    Bidang: {row[1]}
+                    Jenis Kelamin: {row[2]}
+                    Alamat: {row[3]}
+                    No.HP: {row[4]}
+                """)
+
     def lihatJadwal(self):
         query = c.execute("""
         SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE
@@ -79,7 +67,7 @@ class Person:
                 FROM tab_students
                 INNER JOIN tab_classes
                 ON tab_students.kelas = tab_classes.class_id
-                ''')  
+                ''')
 
         for row in query:
             print(f"""
@@ -149,7 +137,8 @@ class Student(Person):
                 Kelas: {row[2]}
                 Jenis Kelamin: {row[3]}
                 Alamat: {row[4]}
-                Nomor telepon: {row[5]}""")
+                Nomor telepon: {row[5]}
+            """)
 
     def lihatTeman(self):
         query0 = c.execute(
@@ -164,7 +153,7 @@ class Student(Person):
                 FROM tab_students
                 INNER JOIN tab_classes
                 ON tab_students.kelas = tab_classes.class_id
-                WHERE tab_classes.class_id = ?''', (kelas,))  
+                WHERE tab_classes.class_id = ?''', (kelas,))
 
         for row in query:
             print(f"""
@@ -173,7 +162,8 @@ class Student(Person):
                     Jenis Kelamin: {row[2]}
                     Alamat: {row[3]}
                     No.HP: {row[4]}
-                """) 
+                """)
+
 
 class Classes:
     def __init__(self, classname):
@@ -283,6 +273,7 @@ class Display:
             print("\t\t-----ID tidak terdaftar, hubungi administrator-----")
             Display.Home(self)
 
+
     def menuSiswa(self):
         self.status = ["Siswa", Display.guestID]
         print("""
@@ -302,7 +293,7 @@ class Display:
             if self.cekMenu == '1':
                 Student.dataDiri()
             elif self.cekMenu == '2':
-                Person.dataDiri() #belom dibenerin
+                Person.dataDiri() 
             elif self.cekMenu == '3':
                 Student.lihatJadwal(self)
             elif self.cekMenu == '4':
@@ -314,7 +305,8 @@ class Display:
             elif self.cekMenu == '7':
                 Display.exit(self)
             else:
-                print("Menu tidak tersedia")
+                print("""
+            \t------------------Menu Tidak Tersedia--------------""")
 
     def menuGuru(self):
         print("""
