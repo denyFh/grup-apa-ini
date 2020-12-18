@@ -54,6 +54,24 @@ class Person:
                 Nama: {row[1]}
                 Kelas: {row[2]}
                 Jenis Kelamin: {row[3]}""")
+    
+    def lihatJadwal(self):
+        query = c.execute("""
+        SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE
+        FROM tab_schedules
+        INNER JOIN tab_classes 
+        ON tab_schedules.class_id = tab_classes.class_id
+        INNER JOIN tab_teachers
+        ON tab_schedules.teacher_id = tab_teachers.teacher_id
+        """)
+
+        for row in query:
+            print(f"""
+                Pengajar: {row[0]}
+                Kelas: {row[1]}
+                Waktu: {row[2]}, {row[3]}, {row[4]}
+                Note: {row[5]}
+            """)
 
 
 class Teacher(Person):
@@ -96,11 +114,29 @@ class Student(Person):
         return self._kelas
 
     def lihatJadwal(self):
-        print("""
-        ----------------------Jadwal Pelajaran---------------------
-        |   Pengajar   |    Kelas    |            Waktu           |
-        |{}            |{}           |{}, {}, {}                  |
-        """.format(self.getNama, Schedule.getKelas, Schedule.getHari, Schedule.getTanggal, Schedule.getWaktu))
+        query0 = c.execute(
+            """SELECT KELAS from tab_students
+            WHERE student_id = ?""", (Display.guestID,))
+
+        for row in query0:
+            kelas = row[0]
+
+        query = c.execute("""
+        SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE
+        FROM tab_schedules
+        INNER JOIN tab_classes 
+        ON tab_schedules.class_id = tab_classes.class_id
+        INNER JOIN tab_teachers
+        ON tab_schedules.teacher_id = tab_teachers.teacher_id
+        WHERE tab_classes.class_id = ?""", (kelas,))
+
+        for row in query:
+            print(f"""
+                Pengajar: {row[0]}
+                Kelas: {row[1]}
+                Waktu: {row[2]}, {row[3]}, {row[4]}
+                Note: {row[5]}
+            """)
 
     @classmethod
     def dataDiri(self):
@@ -232,22 +268,25 @@ class Display:
         self.status = ["Siswa", Display.guestID]
         print("""
                 -----------Selamat datang, {} {}-----------
-                Silahkan pilih menu yang anda inginkan (1-3):
+                Silahkan pilih menu yang anda inginkan (1-4):
                 1. Lihat Jadwal
                 2. Lihat Data Diri
                 3. Lihat Data Pengajar
-                4. Logout
+                4. Lihat Jadwal Pribadi
+                5. Logout
                 ----------------------------------------------------""".format(self.status[0], self.status[1]))
         self.cekMenu = "0"
-        while self.cekMenu != "4":
+        while self.cekMenu != "5":
             self.cekMenu = input("\t\tMasukkan Menu : ")
             if self.cekMenu == '1':
-                Student.lihatJadwal()
+                Person.lihatJadwal(self)
             elif self.cekMenu == '2':
                 Student.dataDiri()
             # elif self.cekMenu == '3':
             #     Person().lihatdata()
             elif self.cekMenu == '4':
+                Student.lihatJadwal(self)
+            elif self.cekMenu == '5':
                 Display.exit(self)
             else:
                 print("Menu tidak tersedia")
