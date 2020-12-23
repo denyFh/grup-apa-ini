@@ -326,7 +326,7 @@ No.HP: {row[5]}
                     for row in sql:
                         idkelas = int(row[0])
                     siswa = Student(nama, idkelas, jk, alamat, nohp, 1)
-                    tempo = cursor.execute("select * from tab_students where phone = ?", (siswa.getPhone,))
+                    tempo = cursor.execute("select * from tab_students where PHONE = ?", (siswa.getPhone(),))
                     if tempo.fetchone() is None:
                         cursor.execute("insert into tab_students (NAMA, KELAS, JENIS_KELAMIN, ALAMAT, PHONE) values (?,?,?,?,?)", (siswa.getNama(), siswa.getKelas(), siswa.getGender(), siswa.getAlamat(), siswa.getPhone()))
                         conn.commit()
