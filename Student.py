@@ -1,5 +1,9 @@
-from connector import Connect
+import sqlite3
 from Person import Person
+DbName = 'db_leslesan.db'
+conn = sqlite3.connect(DbName)
+cursor = conn.cursor()
+
 
 class Student(Person):
 
@@ -11,14 +15,14 @@ class Student(Person):
         return self._kelas
 
     def lihatJadwal(self):
-        query0 = Connect().c.execute(
+        query0 = cursor.execute(
             """SELECT KELAS from tab_students
             WHERE student_id = ?""", (self.id,))
 
         for row in query0:
             kelas = row[0]
 
-        query = Connect().c.execute("""
+        query = cursor.execute("""
         SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE
         FROM tab_schedules
         INNER JOIN tab_classes 
@@ -36,7 +40,7 @@ class Student(Person):
             """)
 
     def dataDiri(self):
-        query = Connect().c.execute('''\
+        query = cursor.execute('''\
             SELECT tab_students.student_id, tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
             FROM tab_students
             INNER JOIN tab_classes
@@ -55,14 +59,14 @@ Nomor telepon\t: {row[5]}
             """)
 
     def lihatTeman(self):
-        query0 = Connect().c.execute(
+        query0 = cursor.execute(
             """SELECT KELAS from tab_students
             WHERE student_id = ?""", (self.id,))
 
         for row in query0:
             kelas = row[0]
 
-        query = Connect().c.execute('''\
+        query = cursor.execute('''\
                 SELECT tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
                 FROM tab_students
                 INNER JOIN tab_classes

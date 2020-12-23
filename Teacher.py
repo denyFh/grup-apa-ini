@@ -1,8 +1,12 @@
-from connector import Connect
+import sqlite3
 from Person import Person
+DbName = 'db_leslesan.db'
+conn = sqlite3.connect(DbName)
+cursor = conn.cursor()
 
 
 class Teacher(Person):
+    daftarid = []
     def __init__(self, nama, gender, mapel, alamat, phone, iD):
         super().__init__(nama, gender, alamat, phone, iD)
         self._mapel = mapel
@@ -11,7 +15,7 @@ class Teacher(Person):
         return self._mapel
 
     def lihatJadwal(self):
-        query = Connect().c.execute("""
+        query = conn.execute("""
         SELECT tab_schedules.id, tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
         FROM tab_schedules
         INNER JOIN tab_classes 
@@ -21,6 +25,7 @@ class Teacher(Person):
         WHERE tab_teachers.teacher_id = ?""", (self.id,))
 
         for row in query:
+            Teacher.daftarid.append(row[0])
             print(f"""
                 ID: {row[0]}
                 Pengajar: {row[1]}
@@ -31,7 +36,7 @@ class Teacher(Person):
             """)
 
     def dataDiri(self):
-        query = Connect().c.execute('''\
+        query = conn.execute('''\
             SELECT tab_teachers.teacher_id, tab_teachers.nama, tab_teachers.jenis_kelamin, tab_teachers.mapel, tab_teachers.alamat, tab_teachers.phone
             FROM tab_teachers WHERE tab_teachers.teacher_id = ?''', (self.id,))
         for row in query:

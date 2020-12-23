@@ -1,4 +1,7 @@
-from connector import Connect
+import sqlite3
+DbName = 'db_leslesan.db'
+conn = sqlite3.connect(DbName)
+cursor = conn.cursor()
 
 
 class Schedule:

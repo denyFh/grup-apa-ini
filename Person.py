@@ -1,4 +1,7 @@
-from connector import Connect
+import sqlite3
+DbName = 'db_leslesan.db'
+conn = sqlite3.connect(DbName)
+cursor = conn.cursor()
 
 
 class Person:
@@ -28,7 +31,7 @@ class Person:
         self._phone = phone
 
     def dataDiri(self):
-        query = Connect().c.execute('''
+        query = cursor.execute('''
                 SELECT tab_teachers.nama, tab_teachers.mapel, tab_teachers.jenis_kelamin, tab_teachers.alamat, tab_teachers.phone FROM tab_teachers''')
         for row in query:
             print(f"""
@@ -40,7 +43,7 @@ class Person:
                 """)
 
     def lihatJadwal(self):
-        query = Connect().c.execute("""
+        query = cursor.execute("""
         SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
         FROM tab_schedules
         INNER JOIN tab_classes 
@@ -59,7 +62,7 @@ class Person:
             """)
 
     def lihatTeman(self):
-        query = Connect().c.execute('''\
+        query = cursor.execute('''\
                 SELECT tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
                 FROM tab_students
                 INNER JOIN tab_classes
