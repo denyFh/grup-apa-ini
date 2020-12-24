@@ -299,7 +299,7 @@ Alamat: {row[4]}
 No.HP: {row[5]}
 """)
                     else:
-                        print("Kelas tidak terdaftar")
+                        print(">> Kelas tidak terdaftar")
                 elif a == "b":
                     nama = input("Masukkan nama kelas >> ")
                     kelas = Classes(nama)
@@ -307,9 +307,9 @@ No.HP: {row[5]}
                     if tempo.fetchone() is None:
                         cursor.execute("insert into tab_classes (nama) values (?)", (kelas.getClassName()))
                         conn.commit()
-                        print("Kelas berhasil ditambahkan")
+                        print(">> Kelas berhasil ditambahkan")
                     else:
-                        print("Nama kelas sudah terdaftar")
+                        print(">> Nama kelas sudah terdaftar")
                 elif a == "c":
                     nama =  input("Masukkan nama >> ")
                     getkelas = input("Masukkan nama kelas >> ")
@@ -330,9 +330,9 @@ No.HP: {row[5]}
                     if tempo.fetchone() is None:
                         cursor.execute("insert into tab_students (NAMA, KELAS, JENIS_KELAMIN, ALAMAT, PHONE) values (?,?,?,?,?)", (siswa.getNama(), siswa.getKelas(), siswa.getGender(), siswa.getAlamat(), siswa.getPhone()))
                         conn.commit()
-                        print("Siswa berhasil didaftarkan")
+                        print(">> Siswa berhasil didaftarkan")
                     else:
-                        print("Siswa sudah terdaftar")
+                        print(">> Siswa sudah terdaftar")
                 else:
                     print("Menu tidak tersedia")                 
 #                 Teacher.dataDiri(self)
@@ -370,9 +370,9 @@ Masukkan pilihan >> """)
                     if tempo.fetchone() is None:
                         cursor.execute("insert into tab_teachers (NAMA, JENIS_KELAMIN, MAPEL, ALAMAT, PHONE) values (?,?,?,?,?)", (guru.getNama(), guru.getGender(), guru.getMapel(), guru.getAlamat(), guru.getPhone()))
                         conn.commit()
-                        print("Guru berhasil didaftarkan")
+                        print(">> Guru berhasil didaftarkan")
                     else:
-                        print("Guru sudah terdaftar")
+                        print(">> Guru sudah terdaftar")
                 elif a == "c":
                     Person.dataDiri(self)
                     d = input("ingin menghapus data? ketik 'y' jika iya ")
@@ -380,11 +380,11 @@ Masukkan pilihan >> """)
                         inpId = input("Masukkan id guru yang ingin dihapus ")
                         temp = cursor.execute("select * from tab_teachers where teacher_id = ?", (inpId,))
                         if temp.fetchone() is None:
-                            print("Guru tidak ada")
+                            print(">> Guru tidak ada")
                         else:
                             cursor.execute("delete from tab_teachers where teacher_id = ?", (inpId,))
                             conn.commit()
-                            print("Guru telah dihapus")
+                            print(">> Guru telah dihapus")
                     else:
                         continue
                 else:
@@ -396,12 +396,72 @@ Silahkan pilih menu yang anda inginkan:
 [a] Lihat Jadwal
 [b] Tambah Jadwal
 [c] Hapus Jadwal
-[d] Edit Jadwal
 =============================================
 Masukkan pilihan >> """)
                 if a == "a":
                     Person.lihatJadwal(self)
                     input("(Press Enter to Continue...)\n")    
+                elif a == "b":
+                    klaslist = []
+                    gurulist = []
+                    sql1 = cursor.execute("select class_id from tab_classes")
+                    for i in sql1:
+                        klaslist.append(i)
+                    res1 = str(klaslist)[1:-1]
+                    print(f"List kelas tersedia: {res1}")
+                    sql2 = cursor.execute("select teacher_id from tab_teachers")
+                    for i in sql2:
+                        gurulist.append(i)
+                    res2 = str(gurulist)[1:-1]
+                    print(f"List guru tersedia: {res2}")
+                    klasid = int(input("Masukkan id kelas >> "))
+                    guruid = int(input("Masukkan id guru >> "))
+                    hari = input("Masukkan hari >> ").upper()
+                    tg = input("Masukkan tanggal (DD) >> ")
+                    bln = input("Masukkan bulan (MM) >> ")
+                    thn = input("Masukkan tahun (YYYY) >> ")
+                    tanggal = "{}/{}/{}".format(tg, bln, thn)
+                    waktumulai = input("Masukkan waktu mulai dengan format jam 24.00 >> ")
+                    waktuakhir =  input("Masukkan waktu selesai dengan format jam 24.00 >> ")
+                    waktu = "{} s/d {}".format(waktumulai, waktuakhir)
+                    jadwal = Schedule(1, klasid, guruid, hari, tanggal, waktu, 1)
+                    tempor = cursor.execute("select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
+                    if tempor.fetchone() is None:
+                        cursor.execute("insert into tab_schedules (class_id, teacher_id, DAY, DATE, TIME) values (?,?,?,?,?)", (jadwal.getKelas(), jadwal.getGuru(), jadwal.getHari(), jadwal.getTanggal(), jadwal.getWaktu()))
+                        conn.commit()
+                        print(">> Jadwal berhasil ditambahkan")
+                    else:
+                        print(">> Jadwal crash, silahkan tambahkan ulang")
+                elif a == "c":
+                    Person.lihatJadwal(self)
+                    e = input("Ingin menghapus jadwal? ketik 'y' jika iya ")
+                    if e == "y":
+                        f = input("Pada Hari apa jadwal tersebut? >> ").upper()
+                        temp = cursor.execute("select * from tab_schedules where DAY = ?", (f,))
+                        if temp.fetchone() is None:
+                            print(">> Jadwal tidak ada")
+                        else:
+                            tempf = cursor.execute("select * from tab_schedules where DAY = ?", (f,))
+                            for row in tempf:
+                                print(f"""
+            ID Jadwal : {row[0]}
+            ID Kelas : {row[1]}
+            ID Guru : {row[2]}
+            Hari : {row[3]}
+            Tanggal : {row[4]}
+            Waktu : {row[5]}
+            Catatan : {row[6]}
+                                """)
+                            jid = input("Masukkan ID Jadwal yang ingin dihapus >> ")
+                            tempjid = cursor.execute("select * from tab_schedules where id = ?", (jid,))
+                            if tempjid.fetchone() is None:
+                                print(">> ID Jadwal tidak ditemukan")
+                            else:
+                                cursor.execute("delete from tab_schedules where id = ?", (jid,))
+                                conn.commit()
+                                print(">> Jadwal telah dihapus")
+                    else:
+                        continue
 #                 else:
 #                     print("\n============ Menu Tidak Tersedia ============\n")
 #                 input("(Press Enter to Continue...)\n")
