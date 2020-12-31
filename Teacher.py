@@ -50,3 +50,18 @@ Jenis Kelamin\t: {row[2]}
 Alamat\t\t: {row[4]}
 Nomor telepon\t: {row[5]}
             """)
+
+    def editCatatan(self):
+        a = input("Edit catatan? (ketik 'y' jika iya) ")
+        if a == "y":
+            jadwal = input("Masukkan ID Jadwal: ")
+            note = input("Masukkan catatan: ")
+            cursor.execute(
+                "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, jadwal))
+            if jadwal in Teacher.daftarid:
+                conn.commit()
+            else:
+                print(
+                    ">> Hubungi guru yang bertugas untuk memberikan catatan")
+        else:
+            pass

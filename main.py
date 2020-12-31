@@ -187,19 +187,7 @@ Masukkan pilihan >> """)
                     objek.lihatJadwal()
                 elif a == "b":
                     guru.lihatJadwal()
-                    a = input("Edit catatan? (ketik 'y' jika iya) ")
-                    if a == "y":
-                        jadwal = input("Masukkan ID Jadwal: ")
-                        note = input("Masukkan catatan: ")
-                        self.cursor.execute(
-                            "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, jadwal))
-                        if jadwal in Teacher.daftarid:
-                            self.conn.commit()
-                        else:
-                            print(
-                                ">> Hubungi guru yang bertugas untuk memberikan catatan")
-                    else:
-                        continue
+                    guru.editCatatan()
                 else:
                     print("\n============ Menu Tidak Tersedia ============\n")
                 input("(Press Enter to Continue...)\n")
@@ -245,17 +233,7 @@ Masukkan pilihan >> """)
                     if b == "a":
                         password = input("Masukkan password: ")
                         if password == self.guestID:
-                            username = input("Masukkan username: ")
-                            tempo = self.cursor.execute(
-                                "select * from tab_admins where username = ?", (username,))
-                            if tempo.fetchone() is None:
-                                admin.setUsername(username)
-                                self.cursor.execute("UPDATE tab_admins set USERNAME = ? WHERE password = ?", (
-                                    admin.getUsername(), admin.getPassword()))
-                                self.conn.commit()
-                            else:
-                                print(
-                                    "Username sudah digunakan, silahkan gunakan username lain")
+                            admin.editUsername()
                         else:
                             print("Password salah, kembali ke menu utama")
                     elif b == "b":
@@ -271,14 +249,14 @@ Masukkan pilihan >> """)
                                 self.cursor.execute(
                                     "UPDATE tab_admins set password = ? WHERE password = ?", (admin.getPassword(), password))
                                 self.conn.commit()
-                                self.exit()
+                                self.exit() #skip. Masih bingung soalnya dia butuh display jadi class admin masih harus ngeimport main yang nanti nimbulin saling depend
                             else:
                                 print(
                                     "Password sudah digunakan, silahkan gunakan password lain")
                         else:
                             print("Password salah,  kembali ke menu utama")
                     else:
-                        print("Password salah,  kembali ke menu utama")
+                        print("============ Menu Tidak Tersedia ============")
                 else:
                     continue
                 input("(Press Enter to Continue...)\n")
@@ -292,33 +270,10 @@ Silahkan pilih menu yang anda inginkan:
 =============================================
 Masukkan pilihan >> """)
                 if a == "a":
-                    kelas = []
-                    query = self.cursor.execute("SELECT * FROM tab_classes")
-                    for row in query:
-                        print(f"""[{row[0]}] {row[1]}""")
-                        kelas.append(row[1])
-                    getdetail = input(
-                        "Masukkan nama kelas untuk melihat detail >> ")
-                    sql = self.cursor.execute(
-                        "SELECT * FROM tab_classes WHERE NAMA = ?", (getdetail,))
-                    for row in sql:
-                        idkelas = row[0]
-                    if getdetail in kelas:
-                        query = self.cursor.execute(
-                            "SELECT * FROM tab_students WHERE kelas = ?", (idkelas,))
-                        for row in query:
-                            print(f"""
-ID: {row[0]}
-Nama: {row[1]}
-Jenis Kelamin: {row[3]}
-Alamat: {row[4]}
-No.HP: {row[5]}
-""")
-                    else:
-                        print(">> Kelas tidak terdaftar")
+                    admin.lihatKelas()
                 elif a == "b":
                     nama = input("Masukkan nama kelas >> ")
-                    kelas = Classes(nama)
+                    kelas = Classes(nama) #<-thisone
                     tempo = self.cursor.execute(
                         "select * from tab_classes where nama = ?", (kelas.getClassName(),))
                     if tempo.fetchone() is None:
@@ -345,7 +300,7 @@ No.HP: {row[5]}
                         "SELECT * FROM tab_classes WHERE NAMA = ?", (getkelas,))
                     for row in sql:
                         idkelas = int(row[0])
-                    siswa = Student(nama, idkelas, jk, alamat, nohp, 1)
+                    siswa = Student(nama, idkelas, jk, alamat, nohp, 1) #<-thisone
                     tempo = self.cursor.execute(
                         "select * from tab_students where PHONE = ?", (siswa.getPhone(),))
                     if tempo.fetchone() is None:
@@ -357,9 +312,6 @@ No.HP: {row[5]}
                         print(">> Siswa sudah terdaftar")
                 else:
                     print("Menu tidak tersedia")
-#                 Teacher.dataDiri(self)
-#                 User.lihatTeman(self)
-#                 input("(Press Enter to Continue...)\n")
             elif self.cekMenu == "3":
                 a = input("""
 =============================================
@@ -385,10 +337,7 @@ Masukkan pilihan >> """)
                         jk = "unset"
                     alamat = input("Masukkan alamat >> ")
                     nohp = input("Masukkan nomor hp >> ")
-                    # sql = self.cursor.execute("SELECT * FROM tab_classes WHERE NAMA = ?", (getkelas,))
-                    # for row in sql:
-                    #     idkelas = int(row[0])
-                    guru = Teacher(nama, jk, mapel, alamat, nohp, 1)
+                    guru = Teacher(nama, jk, mapel, alamat, nohp, 1) #<-thisone
                     tempo = self.cursor.execute(
                         "select * from tab_teachers where PHONE = ?", (guru.getPhone(),))
                     if tempo.fetchone() is None:
@@ -400,20 +349,7 @@ Masukkan pilihan >> """)
                         print(">> Guru sudah terdaftar")
                 elif a == "c":
                     User.dataDiri(self)
-                    d = input("ingin menghapus data? ketik 'y' jika iya ")
-                    if d == "y":
-                        inpId = input("Masukkan id guru yang ingin dihapus ")
-                        temp = self.cursor.execute(
-                            "select * from tab_teachers where teacher_id = ?", (inpId,))
-                        if temp.fetchone() is None:
-                            print(">> Guru tidak ada")
-                        else:
-                            self.cursor.execute(
-                                "delete from tab_teachers where teacher_id = ?", (inpId,))
-                            self.conn.commit()
-                            print(">> Guru telah dihapus")
-                    else:
-                        continue
+                    admin.hapusGuru()
                 else:
                     print("Menu tidak tersedia")
             elif self.cekMenu == "4":
@@ -456,7 +392,7 @@ Masukkan pilihan >> """)
                         "Masukkan waktu selesai dengan format jam 24.00 >> ")
                     waktu = "{} s/d {}".format(waktumulai, waktuakhir)
                     jadwal = Schedule(1, klasid, guruid,
-                                      hari, tanggal, waktu, 1)
+                                      hari, tanggal, waktu, 1) #<-Thisone
                     tempor = self.cursor.execute(
                         "select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
                     if tempor.fetchone() is None:
@@ -468,39 +404,7 @@ Masukkan pilihan >> """)
                         print(">> Jadwal crash, silahkan tambahkan ulang")
                 elif a == "c":
                     User.lihatJadwal(self)
-                    e = input("Ingin menghapus jadwal? ketik 'y' jika iya ")
-                    if e == "y":
-                        f = input("Pada Hari apa jadwal tersebut? >> ").upper()
-                        temp = self.cursor.execute(
-                            "select * from tab_schedules where DAY = ?", (f,))
-                        if temp.fetchone() is None:
-                            print(">> Jadwal tidak ada")
-                        else:
-                            tempf = self.cursor.execute(
-                                "select * from tab_schedules where DAY = ?", (f,))
-                            for row in tempf:
-                                print(f"""
-            ID Jadwal : {row[0]}
-            ID Kelas : {row[1]}
-            ID Guru : {row[2]}
-            Hari : {row[3]}
-            Tanggal : {row[4]}
-            Waktu : {row[5]}
-            Catatan : {row[6]}
-                                """)
-                            jid = input(
-                                "Masukkan ID Jadwal yang ingin dihapus >> ")
-                            tempjid = self.cursor.execute(
-                                "select * from tab_schedules where id = ?", (jid,))
-                            if tempjid.fetchone() is None:
-                                print(">> ID Jadwal tidak ditemukan")
-                            else:
-                                self.cursor.execute(
-                                    "delete from tab_schedules where id = ?", (jid,))
-                                self.conn.commit()
-                                print(">> Jadwal telah dihapus")
-                    else:
-                        continue
+                    admin.hapusJadwal()
 #                 else:
 #                     print("\n============ Menu Tidak Tersedia ============\n")
 #                 input("(Press Enter to Continue...)\n")
