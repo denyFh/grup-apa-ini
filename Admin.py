@@ -1,7 +1,12 @@
 import sqlite3
+import os
+from Classes import Classes
+from Student import Student
 DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
+
+
 class Admin:
     def __init__(self, username, password, iD):
         self.__username = username
@@ -13,73 +18,191 @@ class Admin:
 
     def getPassword(self):
         return self.__password
+
     def setUsername(self, value):
         self.__username = value
+
     def setPassword(self, value):
-        self.__password = value    
+        self.__password = value
+
     def detail(self):
-        password = len(Admin.getPassword(self))*"*"
+        password = len(self.getPassword())*"*"
         return (f"""=============================================
                  DATA DIRI                   
 =============================================
-Username = {Admin.getUsername(self)}
+Username = {self.getUsername()}
 Password = {password}
 """)
 
     def editUsername(self):
-        username = input("Masukkan username: ")
-        tempo = cursor.execute(
-            "select * from tab_admins where username = ?", (username,))
-        if tempo.fetchone() is None:
-            self.setUsername(username)
+        self.editusername = input("Masukkan username: ")
+        self.tempo = cursor.execute(
+            "select * from tab_admins where username = ?", (self.editusername,))
+        if self.tempo.fetchone() is None:
+            self.setUsername(self.editusername)
             cursor.execute("UPDATE tab_admins set USERNAME = ? WHERE password = ?", (
-            self.getUsername(), self.getPassword()))
+                self.getUsername(), self.getPassword()))
             conn.commit()
+            return("Username berhasil diubah!")
         else:
-            print(
-                "Username sudah digunakan, silahkan gunakan username lain")
+            return("Username sudah digunakan, silahkan gunakan username lain")
 
     def editPassword(self):
-        pass
-    
+        self.newpassword = input("Masukkan password baru: ")
+        self.tempo = cursor.execute(
+            "select * from tab_admins where password = ?", (self.newpassword,))
+        if self.tempo.fetchone() is None:
+            self.setPassword(self.newpassword)
+            cursor.execute("UPDATE tab_admins set password = ? WHERE username = ?",
+                           (self.getPassword(), self.getUsername()))
+            conn.commit()
+            return("Password berhasil diganti, silahkan login kembali untuk melanjutkan kegiatan")
+        else:
+            return("Password sudah digunakan, silahkan gunakan password lain")
+
+    def editDataDiri(self):
+        self.pilihan = input("""=============================================
+               EDIT DATA DIRI                
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Edit username
+[b] Edit password
+=============================================
+Masukkan pilihan >> """)
+        if self.pilihan == "a":
+            self.password = input("Masukkan password: ")
+            if self.password == self.__password:
+                return (self.editUsername())
+            else:
+                return("Password salah, kembali ke menu utama")
+        elif self.pilihan == "b":
+            self.password = input("Masukkan password lama: ")
+            if self.password == self.__password:
+                return (self.editPassword())
+            else:
+                return("Password salah,  kembali ke menu utama")
+        else:
+            return("============ Menu Tidak Tersedia ============")
+
     def lihatKelas(self):
-        kelas = []
-        query = cursor.execute("SELECT * FROM tab_classes")
-        for row in query:
+        self.kelas = []
+        self.query = cursor.execute("SELECT * FROM tab_classes")
+        print("""=============================================
+                DAFTAR KELAS                 
+=============================================""")
+        for row in self.query:
             print(f"""[{row[0]}] {row[1]}""")
-            kelas.append(row[1])
-        getdetail = input(
-            "Masukkan nama kelas untuk melihat detail >> ")
-        sql = cursor.execute(
-            "SELECT * FROM tab_classes WHERE NAMA = ?", (getdetail,))
-        for row in sql:
-            idkelas = row[0]
-        if getdetail in kelas:
-            query = cursor.execute(
-                "SELECT * FROM tab_students WHERE kelas = ?", (idkelas,))
-            for row in query:
+            self.kelas.append(row[1])
+        self.getdetail = (input(
+            "Masukkan nama kelas untuk melihat daftar siswa >> ")).upper()
+        self.clear()
+        self.query = cursor.execute(
+            "SELECT * FROM tab_classes WHERE NAMA = ?", (self.getdetail,))
+        print(f"""=============================================
+             DAFTAR SISWA KELAS {self.getdetail}            
+=============================================""")
+        for row in self.query:
+            self.idkelas = row[0]
+        if self.getdetail in self.kelas:
+            self.query = cursor.execute(
+                "SELECT * FROM tab_students WHERE kelas = ?", (self.idkelas,))
+            for row in self.query:
                 print(f"""
 ID: {row[0]}
 Nama: {row[1]}
 Jenis Kelamin: {row[3]}
 Alamat: {row[4]}
-No.HP: {row[5]}
-""")
+No.HP: {row[5]}""")
+            return("\nFinish!")
         else:
-            print(">> Kelas tidak terdaftar")
+            return(">> Kelas tidak terdaftar")
 
     def tambahKelas(self):
-        nama = input("Masukkan nama kelas >> ")
-        kelas = Classes(nama) #<-problem, harus nge import class lain
-        tempo = self.cursor.execute(
+        kelas = Classes(input("Masukkan nama kelas >> "))
+        self.tempo = cursor.execute(
             "select * from tab_classes where nama = ?", (kelas.getClassName(),))
-        if tempo.fetchone() is None:
-            self.cursor.execute(
+        if self.tempo.fetchone() is None:
+            cursor.execute(
                 "insert into tab_classes (nama) values (?)", (kelas.getClassName()))
-            self.conn.commit()
-            print(">> Kelas berhasil ditambahkan")
+            conn.commit()
+            return (">> Kelas berhasil ditambahkan")
         else:
-            print(">> Nama kelas sudah terdaftar")
+            return (">> Nama kelas sudah terdaftar")
+
+    def editKelas(self):
+        kelasid = input("Masukkan id kelas >> ")
+        nama = input("Masukkan nama kelas baru >> ")
+        req = input("Masukkan password >> ")
+        if req == self.__password:
+            cursor.execute("UPDATE tab_classes set NAMA = ? WHERE class_id = ?", (nama, kelasid))
+            conn.commit()
+            return("Data berhasil diubah!")
+        else:
+            return("Password salah, coba lagi nanti")
+
+    def hapusKelas(self):
+        delKelas = (input("Masukkan nama kelas yang ingin dihapus >> ")).upper()
+        req = input("Masukkan password >> ")
+        if req == self.getPassword():
+            cursor.execute(
+                "delete from tab_classes where nama = ?", (delKelas,))
+            conn.commit()
+            return (">> Kelas berhasil dihapus")
+        else:
+            return(">> Password salah, coba lagi nanti")
+
+    def tambahSiswa(self):
+        nama = input("Masukkan nama >> ")
+        kelas = input("Masukkan nama kelas >> ")
+        gender = input(
+            "Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
+        if gender == "l":
+            gender = "Laki-Laki"
+        elif gender == "p":
+            gender = "Perempuan"
+        else:
+            gender = "unset"
+        alamat = input("Masukkan alamat >> ")
+        nohp = input("Masukkan nomor hp >> ")
+        query = cursor.execute(
+            "SELECT * FROM tab_classes WHERE NAMA = ?", (kelas,))
+        for row in query:
+            idkelas = int(row[0])
+        siswa = Student(nama, idkelas, gender, alamat, nohp, 1)
+        tempo = cursor.execute(
+            "select * from tab_students where PHONE = ?", (siswa.getPhone(),))
+        if tempo.fetchone() is None:
+            cursor.execute("insert into tab_students (NAMA, KELAS, JENIS_KELAMIN, ALAMAT, PHONE) values (?,?,?,?,?)",
+                           (siswa.getNama(), siswa.getKelas(), siswa.getGender(), siswa.getAlamat(), siswa.getPhone()))
+            conn.commit()
+            return(">> Siswa berhasil didaftarkan")
+        else:
+            return(">> Siswa sudah terdaftar")
+
+#     def editSiswa(self):
+#         nomorid = input("Masukkan id siswa yang akan diedit >> ")
+#         self.pilihan = input("""=============================================
+#                EDIT DATA SISWA               
+# =============================================
+# Silahkan pilih menu yang anda inginkan:
+# [a] Edit nama
+# [b] Edit kelas
+# [c] Edit Jenis Kelamin
+# [d] Edit Alamat
+# [e] Edit Nomor Hp
+# =============================================
+# Masukkan pilihan >> """)
+
+#     def hapusSiswa(self):
+#         nomorid = input("Masukkan id siswa yang akan dihapus >> ")
+#         req = input("Masukkan password >> ")
+#         if req == self.getPassword():
+#             cursor.execute(
+#                 "delete from tab_students where student_id = ?", (nomorid,))
+#             conn.commit()
+#             return (">> Siswa berhasil dihapus")
+#         else:
+#             return(">> Password salah, coba lagi nanti")
 
     def hapusGuru(self):
         d = input("ingin menghapus data? ketik 'y' jika iya ")
@@ -131,3 +254,38 @@ No.HP: {row[5]}
                     print(">> Jadwal telah dihapus")
         else:
             pass
+
+    def mengelolaKelas(self):
+        self.pilihan = input("""=============================================
+                KELOLA KELAS                 
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Lihat Kelas
+[b] Tambahkan Kelas
+[c] Edit Kelas
+[d] Hapus Kelas
+[e] Tambahkan Siswa
+[f] Edit Siswa
+[g] Hapus Siswa
+=============================================
+Masukkan pilihan >> """)
+        if self.pilihan == "a":
+            self.clear()
+            return self.lihatKelas()
+        elif self.pilihan == "b":
+            return self.tambahKelas()
+        elif self.pilihan == "c":
+            return self.editKelas()
+        elif self.pilihan == "d":
+            return self.hapusKelas()
+        elif self.pilihan == "e":
+            return self.tambahSiswa()
+        elif self.pilihan == "f":
+            return self.editSiswa()
+        elif self.pilihan == "g":
+            return self.hapusSiswa()
+        else:
+            return("Menu tidak tersedia")
+
+    def clear(self):
+        os.system('cls')

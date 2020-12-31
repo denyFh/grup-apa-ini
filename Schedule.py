@@ -37,4 +37,3 @@ class Schedule:
 
     def setNote(self, note):
         self._note = note
-

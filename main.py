@@ -43,7 +43,8 @@ class Display:
             self.guestID = int(self.guestID)
 
         data = []
-        query = self.cursor.execute("SELECT * FROM tab_admins WHERE password=?", (self.guestID,))
+        query = self.cursor.execute(
+            "SELECT * FROM tab_admins WHERE password=?", (self.guestID,))
         for row in query:
             data.append(row)
         if len(data) > 0:
@@ -53,27 +54,30 @@ class Display:
             if self.guestID == "-exit":
                 self.exit()
             elif len(str(self.guestID)) == 8:
-                query = self.cursor.execute("SELECT * FROM tab_students WHERE student_id=?", (self.guestID,))
+                query = self.cursor.execute(
+                    "SELECT * FROM tab_students WHERE student_id=?", (self.guestID,))
                 for row in query:
                     data.append(row)
                 if len(data) > 0:
-                    # self.status = [self.role(self.guestID), data[0][1]]
-                    siswa = Student(data[0][1], data[0][2], data[0][3],data[0][4], data[0][5], data[0][0])
-                    objek = User(data[0][1], data[0][3], data[0][4], data[0][5], data[0][0])
-                    # print(
-                    #     "\n- Selamat datang, {} ({}) -".format(self.status[1], self.status[0]))
+                    siswa = Student(
+                        data[0][1], data[0][2], data[0][3], data[0][4], data[0][5], data[0][0])
+                    objek = User(data[0][1], data[0][3],
+                                 data[0][4], data[0][5], data[0][0])
                     self.menuSiswa()
                 else:
                     print("\nID tidak terdaftar, hubungi administrator")
                     input("(Press Enter to Continue...)\n")
                     self.Login()
             elif len(str(self.guestID)) == 5:
-                query = self.cursor.execute("SELECT * FROM tab_teachers WHERE teacher_id=?", (self.guestID,))
+                query = self.cursor.execute(
+                    "SELECT * FROM tab_teachers WHERE teacher_id=?", (self.guestID,))
                 for row in query:
                     data.append(row)
                 if len(data) > 0:
-                    guru = Teacher(data[0][1], data[0][2], data[0][3], data[0][4], data[0][5], data[0][0])
-                    objek = User(data[0][1], data[0][3], data[0][4], data[0][5], data[0][0])
+                    guru = Teacher(data[0][1], data[0][2], data[0]
+                                   [3], data[0][4], data[0][5], data[0][0])
+                    objek = User(data[0][1], data[0][3],
+                                 data[0][4], data[0][5], data[0][0])
                     self.menuGuru()
                 else:
                     print("\nID tidak terdaftar, hubungi administrator")
@@ -214,104 +218,26 @@ Silahkan pilih menu yang anda inginkan:
 [2] Data Kelas
 [3] Data Guru
 [4] Jadwal
-=============================================""")
-        self.cekMenu = "0"
-        while self.cekMenu != "-1":
-            self.cekMenu = input(
-                "(ketik (-menu) untuk melihat menu dan (-exit) untuk keluar dari program)\nMasukkan Menu : ")
+=============================================
+(ketik (-exit) untuk keluar dari program)""")
+        self.cekMenu = input("Masukkan Menu : ")
+        while self.cekMenu != "-exit":
             if self.cekMenu == "1":
+                self.clear()
                 print(admin.detail())
                 a = input("Edit data diri? (ketik 'y' jika iya) ")
                 if a == "y":
-                    b = input("""
-=============================================
-Silahkan pilih menu yang anda inginkan:
-[a] Edit username
-[b] Edit password
-=============================================
-Masukkan pilihan >> """)
-                    if b == "a":
-                        password = input("Masukkan password: ")
-                        if password == self.guestID:
-                            admin.editUsername()
-                        else:
-                            print("Password salah, kembali ke menu utama")
-                    elif b == "b":
-                        password = input("Masukkan password lama: ")
-                        if password == self.guestID:
-                            newpassword = input("Masukkan password baru: ")
-                            tempo = self.cursor.execute(
-                                "select * from tab_admins where password = ?", (newpassword,))
-                            if tempo.fetchone is None:
-                                admin.setPassword(newpassword)
-                                print(
-                                    "Password berhasil diganti, silahkan login kembali untuk melanjutkan kegiatan")
-                                self.cursor.execute(
-                                    "UPDATE tab_admins set password = ? WHERE password = ?", (admin.getPassword(), password))
-                                self.conn.commit()
-                                self.exit() #skip. Masih bingung soalnya dia butuh display jadi class admin masih harus ngeimport main yang nanti nimbulin saling depend
-                            else:
-                                print(
-                                    "Password sudah digunakan, silahkan gunakan password lain")
-                        else:
-                            print("Password salah,  kembali ke menu utama")
-                    else:
-                        print("============ Menu Tidak Tersedia ============")
+                    self.clear()
+                    print(admin.editDataDiri())
                 else:
-                    continue
+                    pass
                 input("(Press Enter to Continue...)\n")
+                self.menuAdmin()
             elif self.cekMenu == "2":
-                a = input("""
-=============================================
-Silahkan pilih menu yang anda inginkan:
-[a] Lihat Kelas
-[b] Tambahkan Kelas
-[c] Tambahkan Siswa
-=============================================
-Masukkan pilihan >> """)
-                if a == "a":
-                    admin.lihatKelas()
-                elif a == "b":
-                    nama = input("Masukkan nama kelas >> ")
-                    kelas = Classes(nama) #<-thisone
-                    tempo = self.cursor.execute(
-                        "select * from tab_classes where nama = ?", (kelas.getClassName(),))
-                    if tempo.fetchone() is None:
-                        self.cursor.execute(
-                            "insert into tab_classes (nama) values (?)", (kelas.getClassName()))
-                        self.conn.commit()
-                        print(">> Kelas berhasil ditambahkan")
-                    else:
-                        print(">> Nama kelas sudah terdaftar")
-                elif a == "c":
-                    nama = input("Masukkan nama >> ")
-                    getkelas = input("Masukkan nama kelas >> ")
-                    jk = input(
-                        "Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
-                    if jk == "l":
-                        jk = "Laki-Laki"
-                    elif jk == "p":
-                        jk = "Perempuan"
-                    else:
-                        jk = "unset"
-                    alamat = input("Masukkan alamat >> ")
-                    nohp = input("Masukkan nomor hp >> ")
-                    sql = self.cursor.execute(
-                        "SELECT * FROM tab_classes WHERE NAMA = ?", (getkelas,))
-                    for row in sql:
-                        idkelas = int(row[0])
-                    siswa = Student(nama, idkelas, jk, alamat, nohp, 1) #<-thisone
-                    tempo = self.cursor.execute(
-                        "select * from tab_students where PHONE = ?", (siswa.getPhone(),))
-                    if tempo.fetchone() is None:
-                        self.cursor.execute("insert into tab_students (NAMA, KELAS, JENIS_KELAMIN, ALAMAT, PHONE) values (?,?,?,?,?)", (
-                            siswa.getNama(), siswa.getKelas(), siswa.getGender(), siswa.getAlamat(), siswa.getPhone()))
-                        self.conn.commit()
-                        print(">> Siswa berhasil didaftarkan")
-                    else:
-                        print(">> Siswa sudah terdaftar")
-                else:
-                    print("Menu tidak tersedia")
+                self.clear()
+                print(admin.mengelolaKelas())
+                input("(Press Enter to Continue...)\n")
+                self.menuAdmin()
             elif self.cekMenu == "3":
                 a = input("""
 =============================================
@@ -337,7 +263,8 @@ Masukkan pilihan >> """)
                         jk = "unset"
                     alamat = input("Masukkan alamat >> ")
                     nohp = input("Masukkan nomor hp >> ")
-                    guru = Teacher(nama, jk, mapel, alamat, nohp, 1) #<-thisone
+                    guru = Teacher(nama, jk, mapel, alamat,
+                                   nohp, 1)  # <-thisone
                     tempo = self.cursor.execute(
                         "select * from tab_teachers where PHONE = ?", (guru.getPhone(),))
                     if tempo.fetchone() is None:
@@ -352,6 +279,8 @@ Masukkan pilihan >> """)
                     admin.hapusGuru()
                 else:
                     print("Menu tidak tersedia")
+                input("(Press Enter to Continue...)\n")
+                self.menuAdmin()
             elif self.cekMenu == "4":
                 a = input("""
 =============================================
@@ -392,7 +321,7 @@ Masukkan pilihan >> """)
                         "Masukkan waktu selesai dengan format jam 24.00 >> ")
                     waktu = "{} s/d {}".format(waktumulai, waktuakhir)
                     jadwal = Schedule(1, klasid, guruid,
-                                      hari, tanggal, waktu, 1) #<-Thisone
+                                      hari, tanggal, waktu, 1)  # <-Thisone
                     tempor = self.cursor.execute(
                         "select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
                     if tempor.fetchone() is None:
@@ -413,13 +342,13 @@ Masukkan pilihan >> """)
 #                 input("(Press Enter to Continue...)\n")
                 else:
                     print("Menu tidak tersedia")
-            elif self.cekMenu == "-menu":
+                input("(Press Enter to Continue...)\n")
                 self.menuAdmin()
-            elif self.cekMenu == "-exit":
-                self.exit()
             else:
                 input(
                     "============ Menu Tidak Tersedia ============\n(Press Enter to Continue...)\n")
+        else:
+            self.exit()
 
     def exit(self):
         print("""

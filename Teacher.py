@@ -7,6 +7,7 @@ cursor = conn.cursor()
 
 class Teacher(User):
     daftarid = []
+
     def __init__(self, nama, gender, mapel, alamat, phone, iD):
         super().__init__(nama, gender, alamat, phone, iD)
         self._mapel = mapel
