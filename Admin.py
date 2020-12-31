@@ -179,30 +179,70 @@ No.HP: {row[5]}""")
         else:
             return(">> Siswa sudah terdaftar")
 
-#     def editSiswa(self):
-#         nomorid = input("Masukkan id siswa yang akan diedit >> ")
-#         self.pilihan = input("""=============================================
-#                EDIT DATA SISWA               
-# =============================================
-# Silahkan pilih menu yang anda inginkan:
-# [a] Edit nama
-# [b] Edit kelas
-# [c] Edit Jenis Kelamin
-# [d] Edit Alamat
-# [e] Edit Nomor Hp
-# =============================================
-# Masukkan pilihan >> """)
+    def editSiswa(self):
+        data = []
+        nomorid = input("Masukkan id siswa yang akan diedit >> ")
+        query = cursor.execute("SELECT * FROM tab_students WHERE student_id = ?", (nomorid,))
+        if query.fetchone() is None:
+            return("Siswa tidak terdaftar") 
+        else:
+            query = cursor.execute("SELECT * FROM tab_students WHERE student_id = ?", (nomorid,))
+            for row in query:
+                data.append(row)
+            siswa = Student(data[0][1], data[0][2], data[0][3], data[0][4], data[0][5], nomorid)
+            self.clear()
+            self.pilihan = input("""=============================================
+               EDIT DATA SISWA               
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Edit nama
+[b] Edit kelas
+[c] Edit Jenis Kelamin
+[d] Edit Alamat
+[e] Edit Nomor Hp
+=============================================
+Masukkan pilihan >> """)
+            if self.pilihan == "a":
+                siswa.setNama(input("Masukkan nama siswa >> "))
+                cursor.execute("UPDATE tab_students set NAMA = ? WHERE student_id = ?", (siswa.getNama(), nomorid))
+                conn.commit()
+            elif self.pilihan == "b":
+                siswa.setKelas(input("Masukkan id kelas >> "))
+                cursor.execute("UPDATE tab_students set Kelas = ? WHERE student_id = ?", (siswa.getKelas(), nomorid))
+                conn.commit()
+            elif self.pilihan == "c":
+                gender = input("Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
+                if gender == "l":
+                    gender = "Laki-Laki"
+                elif gender == "p":
+                    gender = "Perempuan"
+                else:
+                    gender = "unset"
+                siswa.setGender(gender)
+                cursor.execute("UPDATE tab_students set jenis_kelamin = ? WHERE student_id = ?", (siswa.getGender(), nomorid))
+                conn.commit()
+            elif self.pilihan == "d":
+                siswa.setAlamat("Masukkan alamat >> ")
+                cursor.execute("UPDATE tab_students set Alamat = ? WHERE student_id = ?", (siswa.getAlamat(), nomorid))
+                conn.commit()
+            elif self.pilihan == "e":
+                siswa.setPhone("Masukkan nomor hp >> ")
+                cursor.execute("UPDATE tab_students set Phone = ? WHERE student_id = ?", (siswa.getPhone(), nomorid))
+                conn.commit()
+            else:
+                return "Pilihan tidak terdapat pada menu"
+            return "Kembali ke menu.."
 
-#     def hapusSiswa(self):
-#         nomorid = input("Masukkan id siswa yang akan dihapus >> ")
-#         req = input("Masukkan password >> ")
-#         if req == self.getPassword():
-#             cursor.execute(
-#                 "delete from tab_students where student_id = ?", (nomorid,))
-#             conn.commit()
-#             return (">> Siswa berhasil dihapus")
-#         else:
-#             return(">> Password salah, coba lagi nanti")
+    def hapusSiswa(self):
+        nomorid = input("Masukkan id siswa yang akan dihapus >> ")
+        req = input("Masukkan password >> ")
+        if req == self.getPassword():
+            cursor.execute(
+                "delete from tab_students where student_id = ?", (nomorid,))
+            conn.commit()
+            return (">> Siswa berhasil dihapus")
+        else:
+            return(">> Password salah, coba lagi nanti")
 
     def hapusGuru(self):
         d = input("ingin menghapus data? ketik 'y' jika iya ")

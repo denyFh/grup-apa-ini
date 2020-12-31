@@ -14,18 +14,24 @@ class User:
 
     def getNama(self):
         return self._nama
+    
+    def setNama(self, nama):
+        self._nama = nama
 
     def getGender(self):
         return self._gender
 
+    def setGender(self,gender):
+        self._gender = gender
+
     def getAlamat(self):
         return self._alamat
 
-    def getPhone(self):
-        return self._phone
-
     def setAlamat(self, alamat):
         self._alamat = alamat
+
+    def getPhone(self):
+        return self._phone
 
     def setPhone(self, phone):
         self._phone = phone

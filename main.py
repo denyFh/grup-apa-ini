@@ -334,12 +334,6 @@ Masukkan pilihan >> """)
                 elif a == "c":
                     User.lihatJadwal(self)
                     admin.hapusJadwal()
-#                 else:
-#                     print("\n============ Menu Tidak Tersedia ============\n")
-#                 input("(Press Enter to Continue...)\n")
-#             elif self.cekMenu == "4":
-#                 User.dataDiri(self)
-#                 input("(Press Enter to Continue...)\n")
                 else:
                     print("Menu tidak tersedia")
                 input("(Press Enter to Continue...)\n")

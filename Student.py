@@ -14,6 +14,9 @@ class Student(User):
     def getKelas(self):
         return self._kelas
 
+    def setKelas(self, value):
+        self._kelas = value
+
     def lihatJadwal(self):
         query0 = cursor.execute(
             """SELECT KELAS from tab_students
