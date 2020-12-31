@@ -1,11 +1,11 @@
 import sqlite3
-from Person import Person
+from User import User
 DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
 
 
-class Teacher(Person):
+class Teacher(User):
     daftarid = []
     def __init__(self, nama, gender, mapel, alamat, phone, iD):
         super().__init__(nama, gender, alamat, phone, iD)

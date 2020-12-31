@@ -4,7 +4,7 @@ conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
 
 
-class Person:
+class User:
     def __init__(self, nama, gender, alamat, phone, iD):
         self._nama = nama
         self._gender = gender
