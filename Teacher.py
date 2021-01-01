@@ -15,27 +15,6 @@ class Teacher(User):
     def getMapel(self):
         return self._mapel
 
-    def lihatJadwal(self):
-        query = conn.execute("""
-        SELECT tab_schedules.id, tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
-        FROM tab_schedules
-        INNER JOIN tab_classes 
-        ON tab_schedules.class_id = tab_classes.class_id
-        INNER JOIN tab_teachers
-        ON tab_schedules.teacher_id = tab_teachers.teacher_id
-        WHERE tab_teachers.teacher_id = ?""", (self.id,))
-
-        for row in query:
-            Teacher.daftarid.append(row[0])
-            print(f"""
-                ID: {row[0]}
-                Pengajar: {row[1]}
-                Mata Pelajaran: {row[7]}
-                Kelas: {row[2]}
-                Waktu: {row[3]}, {row[4]}, {row[5]}
-                Note: {row[6]}
-            """)
-
     def dataDiri(self):
         query = conn.execute('''\
             SELECT tab_teachers.teacher_id, tab_teachers.nama, tab_teachers.jenis_kelamin, tab_teachers.mapel, tab_teachers.alamat, tab_teachers.phone
@@ -50,7 +29,66 @@ Mata Pelajaran\t: {row[3]}
 Jenis Kelamin\t: {row[2]}
 Alamat\t\t: {row[4]}
 Nomor telepon\t: {row[5]}
-            """)
+=============================================
+""")
+
+    def lihatKelas(self):
+        self.kelas = []
+        self.query = cursor.execute("SELECT * FROM tab_classes")
+        print("""=============================================
+                DAFTAR KELAS                 
+=============================================""")
+        for row in self.query:
+            print(f"""[{row[0]}] {row[1]}""")
+            self.kelas.append(row[1])
+        self.getdetail = (input(
+            "=============================================\nMasukkan nama kelas untuk melihat daftar siswa >> ")).upper()
+        self.clear()
+        self.query = cursor.execute(
+            "SELECT * FROM tab_classes WHERE NAMA = ?", (self.getdetail,))
+        print(f"""=============================================
+             DAFTAR SISWA KELAS {self.getdetail}            
+=============================================""")
+        for row in self.query:
+            self.idkelas = row[0]
+        if self.getdetail in self.kelas:
+            self.query = cursor.execute(
+                "SELECT * FROM tab_students WHERE kelas = ?", (self.idkelas,))
+            for row in self.query:
+                print(f"""ID: {row[0]}
+Nama: {row[1]}
+Jenis Kelamin: {row[3]}
+Alamat: {row[4]}
+No.HP: {row[5]}
+=============================================""")
+            print()
+        else:
+            print(">> Kelas tidak terdaftar\n")
+
+    def lihatJadwal(self):
+        query = conn.execute("""
+        SELECT tab_schedules.id, tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
+        FROM tab_schedules
+        INNER JOIN tab_classes 
+        ON tab_schedules.class_id = tab_classes.class_id
+        INNER JOIN tab_teachers
+        ON tab_schedules.teacher_id = tab_teachers.teacher_id
+        WHERE tab_teachers.teacher_id = ?""", (self.id,))
+
+        print("""=============================================
+               DAFTAR JADWAL                 
+=============================================""")
+        for row in query:
+            Teacher.daftarid.append(row[0])
+            print(f"""ID: {row[0]}
+Pengajar: {row[1]}
+Mata Pelajaran: {row[7]}
+Kelas: {row[2]}
+Waktu: {row[3]}, {row[4]}, {row[5]}
+Note: {row[6]}
+=============================================""")
+        print()
+        self.editCatatan()
 
     def editCatatan(self):
         a = input("Edit catatan? (ketik 'y' jika iya) ")

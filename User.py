@@ -1,10 +1,12 @@
 import sqlite3
+from abc import ABC, abstractmethod
+import os
 DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
 
 
-class User:
+class User(ABC):
     def __init__(self, nama, gender, alamat, phone, iD):
         self._nama = nama
         self._gender = gender
@@ -36,50 +38,46 @@ class User:
     def setPhone(self, phone):
         self._phone = phone
 
+    @abstractmethod
     def dataDiri(self):
-        query = cursor.execute('''
-                SELECT tab_teachers.nama, tab_teachers.mapel, tab_teachers.jenis_kelamin, tab_teachers.alamat, tab_teachers.phone FROM tab_teachers''')
-        for row in query:
-            print(f"""
-                    Nama: {row[0]}
-                    Bidang: {row[1]}
-                    Jenis Kelamin: {row[2]}
-                    Alamat: {row[3]}
-                    No.HP: {row[4]}
-                """)
-
+        pass
+    
+    @abstractmethod
     def lihatJadwal(self):
-        query = cursor.execute("""
-        SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
-        FROM tab_schedules
-        INNER JOIN tab_classes 
-        ON tab_schedules.class_id = tab_classes.class_id
-        INNER JOIN tab_teachers
-        ON tab_schedules.teacher_id = tab_teachers.teacher_id
-        """)
+        pass
+        # query = cursor.execute("""
+        # SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
+        # FROM tab_schedules
+        # INNER JOIN tab_classes 
+        # ON tab_schedules.class_id = tab_classes.class_id
+        # INNER JOIN tab_teachers
+        # ON tab_schedules.teacher_id = tab_teachers.teacher_id
+        # """)
 
-        for row in query:
-            print(f"""
-                Pengajar: {row[0]}
-                Mata Pelajaran: {row[6]}
-                Kelas: {row[1]}
-                Waktu: {row[2]}, {row[3]}, {row[4]}
-                Note: {row[5]}
-            """)
+        # for row in query:
+        #     print(f"""
+        #         Pengajar: {row[0]}
+        #         Mata Pelajaran: {row[6]}
+        #         Kelas: {row[1]}
+        #         Waktu: {row[2]}, {row[3]}, {row[4]}
+        #         Note: {row[5]}
+        #     """)
 
-    def lihatTeman(self):
-        query = cursor.execute('''\
-                SELECT tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
-                FROM tab_students
-                INNER JOIN tab_classes
-                ON tab_students.kelas = tab_classes.class_id
-                ''')
+    # def lihatTeman(self):
+    #     query = cursor.execute('''\
+    #             SELECT tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
+    #             FROM tab_students
+    #             INNER JOIN tab_classes
+    #             ON tab_students.kelas = tab_classes.class_id
+    #             ''')
 
-        for row in query:
-            print(f"""
-                    Nama: {row[0]}
-                    Kelas: {row[1]}
-                    Jenis Kelamin: {row[2]}
-                    Alamat: {row[3]}
-                    No.HP: {row[4]}
-                """)
+    #     for row in query:
+    #         print(f"""
+    #                 Nama: {row[0]}
+    #                 Kelas: {row[1]}
+    #                 Jenis Kelamin: {row[2]}
+    #                 Alamat: {row[3]}
+    #                 No.HP: {row[4]}
+    #             """)
+    def clear(self):
+        os.system('cls')
