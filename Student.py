@@ -117,27 +117,3 @@ No.HP: {row[4]}
                 print()
         else:
             print("\n============ Menu Tidak Tersedia ============\n")
-
-    # def lihatTeman(self):
-    #     query0 = cursor.execute(
-    #         """SELECT KELAS from tab_students
-    #         WHERE student_id = ?""", (self.id,))
-
-    #     for row in query0:
-    #         kelas = row[0]
-
-    #     query = cursor.execute('''\
-    #             SELECT tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
-    #             FROM tab_students
-    #             INNER JOIN tab_classes
-    #             ON tab_students.kelas = tab_classes.class_id
-    #             WHERE tab_classes.class_id = ?''', (kelas,))
-
-    #     for row in query:
-    #         print(f"""
-    #                 Nama: {row[0]}
-    #                 Kelas: {row[1]}
-    #                 Jenis Kelamin: {row[2]}
-    #                 Alamat: {row[3]}
-    #                 No.HP: {row[4]}
-    #             """)

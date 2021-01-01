@@ -56,8 +56,6 @@ class Display:
                 if len(data) > 0:
                     siswa = Student(
                         data[0][1], data[0][2], data[0][3], data[0][4], data[0][5], data[0][0])
-                    # objek = User(data[0][1], data[0][3],
-                    #              data[0][4], data[0][5], data[0][0])
                     self.menuSiswa()
                 else:
                     print("\nID tidak terdaftar, hubungi administrator")
@@ -71,8 +69,6 @@ class Display:
                 if len(data) > 0:
                     guru = Teacher(data[0][1], data[0][2], data[0]
                                    [3], data[0][4], data[0][5], data[0][0])
-                    # objek = User(data[0][1], data[0][3],
-                    #              data[0][4], data[0][5], data[0][0])
                     self.menuGuru()
                 else:
                     print("\nID tidak terdaftar, hubungi administrator")
