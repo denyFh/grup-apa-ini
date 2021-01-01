@@ -37,7 +37,6 @@ class Display:
         self.setguestID = input("Masukkan ID : ")
         if self.guestID.isdigit():
             self.guestID = int(self.guestID)
-
         data = []
         query = self.cursor.execute(
             "SELECT * FROM tab_admins WHERE password=?", (self.guestID,))
@@ -207,6 +206,7 @@ Silahkan pilih menu yang anda inginkan:
             else:
                 input(
                     "============ Menu Tidak Tersedia ============\n(Press Enter to Continue...)\n")
+                self.menuAdmin()    
         else:
             self.exit()
 

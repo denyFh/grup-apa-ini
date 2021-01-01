@@ -309,7 +309,6 @@ Silahkan pilih menu yang anda inginkan:
 [e] Tambahkan Siswa
 [f] Edit Siswa
 [g] Hapus Siswa
-[h] Kembali ke Menu Admin <-Ongoing
 =============================================
 Masukkan pilihan >> """)
         if self.pilihan == "a":
@@ -327,8 +326,6 @@ Masukkan pilihan >> """)
             return self.editSiswa()
         elif self.pilihan == "g":
             return self.hapusSiswa()
-        elif self.pilihan == "h":
-            return "NOT YET"
         else:
             return("Menu tidak tersedia")
 
@@ -436,7 +433,6 @@ Silahkan pilih menu yang anda inginkan:
 [b] Tambah Guru
 [c] Hapus Guru
 [d] Edit Guru
-[e] Kembali ke Menu Admin <- Ongoing
 =============================================
 Masukkan pilihan >> """)
         if self.pilihan == "a":
@@ -447,8 +443,6 @@ Masukkan pilihan >> """)
             return self.hapusGuru()
         elif self.pilihan == "d":
             return self.editGuru()
-        elif self.pilihan == "e":
-            return "NOT YET"
         else:
             return "Menu tidak tersedia"
 
@@ -475,6 +469,7 @@ Masukkan pilihan >> """)
     def tambahJadwal(self):
         klaslist = []
         gurulist = []
+        listhari = ['SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU','MINGGU']
         sql1 = cursor.execute(
             "select class_id from tab_classes")
         for i in sql1:
@@ -489,16 +484,25 @@ Masukkan pilihan >> """)
         print(f"List guru tersedia: {res2}")
         klasid = int(input("Masukkan id kelas >> "))
         guruid = int(input("Masukkan id guru >> "))
-        hari = input("Masukkan hari >> ").upper()
+        inhari = input("Masukkan hari >> ").upper()
+        if inhari not in listhari:
+            print("Hari tidak terdaftar")
+        else:
+            hari = inhari
         thn = input("Masukkan tahun (YYYY) >> ")
         bln = input("Masukkan bulan (MM) >> ")
         tg = input("Masukkan tanggal (DD) >> ")
         tanggal = "{}/{}/{}".format(tg, bln, thn)
-        waktumulai = input(
-            "Masukkan waktu mulai dengan format jam 24.00 >> ")
-        waktuakhir = input(
-            "Masukkan waktu selesai dengan format jam 24.00 >> ")
-        waktu = "{} s/d {}".format(waktumulai, waktuakhir)
+        jammulai = input(int("Masukkan Jam Mulai"))
+        menitmulai = input(int("Masukkan Menit Mulai"))
+        jamakhir = input(int("Masukkan Jam Berakhir"))
+        menitakhir = input(int("Masukkan Menit Berakhir"))
+        if jammulai or jamakhir > 24:
+            print("Jam tidak exist")
+        elif menitmulai or menitakhir > 59:
+            print("Menit tidak exist")
+        else:
+            waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)
         jadwal = Schedule(1, klasid, guruid,
                           hari, tanggal, waktu, 1)
         tempor = cursor.execute(
@@ -530,7 +534,7 @@ Silahkan pilih menu yang anda inginkan:
 [a] Edit Kelas
 [b] Edit Guru Pengajar
 [c] Edit Hari
-[d] Edit Tanggal
+[d] Edit Tanggal <- NEED FIX 
 [e] Edit Waktu
 [f] Edit Catatan
 =============================================
@@ -543,18 +547,33 @@ Masukkan pilihan >> """)
             jadwal.setGuru(input("Masukkan id guru >> "))
             cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (jadwal.getGuru(), nomorid))
             conn.commit()
-        # elif self.pilihan == "c":
-        #     jadwal.setHari(input("Masukkan nama")).upper()
-        #     cursor.execute("UPDATE tab_schedules set DAY = ? WHERE id = ?", (jadwal.getHari(), nomorid))
-        #     conn.commit()
+        elif self.pilihan == "c":
+            listhari = ['SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU','MINGGU']
+            inhari = input("Masukkan hari >> ").upper()
+            if inhari not in listhari:
+                print("Hari tidak terdaftar")
+            else:
+                jadwal.setHari(inhari)
+                cursor.execute("UPDATE tab_schedules set DAY = ? WHERE id = ?", (jadwal.getHari(), nomorid))
+                conn.commit()
         # elif self.pilihan == "d":
         #     jadwal.setDate("Masukkan tanggal >> ")
         #     cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (guru.getAlamat(), nomorid))
         #     conn.commit()
-        # elif self.pilihan == "e":
-        #     jadwal.setWaktu("Masukkan nomor hp >> ")
-        #     cursor.execute("UPDATE tab_teachers set Phone = ? WHERE teacher_id = ?", (guru.getPhone(), nomorid))
-        #     conn.commit()
+        elif self.pilihan == "e":
+            jammulai = input(int("Masukkan Jam Mulai"))
+            menitmulai = input(int("Masukkan Menit Mulai"))
+            jamakhir = input(int("Masukkan Jam Berakhir"))
+            menitakhir = input(int("Masukkan Menit Berakhir"))
+            if jammulai or jamakhir > 24:
+                print("Jam tidak exist")
+            elif menitmulai or menitakhir > 59:
+                print("Menit tidak exist")
+            else:
+                waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)
+                jadwal.setWaktu(waktu)
+                cursor.execute("UPDATE tab_teachers set TIME = ? WHERE id = ?", (jadwal.getWaktu(), nomorid))
+                conn.commit()
         elif self.pilihan == "f":
             jadwal.setNote("Masukkan catatan >> ")
             cursor.execute("UPDATE tab_schedules set NOTE = ? WHERE id = ?", jadwal.getNote(), nomorid)
@@ -571,7 +590,6 @@ Silahkan pilih menu yang anda inginkan:
 [b] Tambah Jadwal
 [c] Hapus Jadwal
 [d] Edit Jadwal
-[e] Kembali ke Menu Admin <- Ongoing
 =============================================
 Masukkan pilihan >> """)
         if self.pilihan == "a":
@@ -582,7 +600,5 @@ Masukkan pilihan >> """)
             return self.hapusJadwal()
         elif self.pilihan == "d":
             return self.editJadwal()
-        elif self.pilihan == "e":
-            return "NOT YET"
         else:
             return "Menu tidak tersedia"
