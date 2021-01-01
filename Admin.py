@@ -372,6 +372,60 @@ Masukkan pilihan >> """)
             return (">> Guru berhasil didaftarkan")
         else:
             return (">> Guru sudah terdaftar")
+    
+    def editGuru(self):
+        data = []
+        nomorid = input("Masukkan id guru yang akan diedit >> ")
+        query = cursor.execute("SELECT * FROM tab_teachers WHERE teacher_id = ?", (nomorid,))
+        if query.fetchone() is None:
+            return("Guru tidak terdaftar") 
+        else:
+            query = cursor.execute("SELECT * FROM tab_teachers WHERE teacher_id = ?", (nomorid,))
+            for row in query:
+                data.append(row)
+            guru = Teacher(data[0][1], data[0][2], data[0][3], data[0][4], data[0][5], nomorid)
+            self.clear()
+            self.pilihan = input("""=============================================
+               EDIT DATA GURU               
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Edit Nama
+[b] Edit Mapel
+[c] Edit Jenis Kelamin
+[d] Edit Alamat
+[e] Edit Nomor Hp
+=============================================
+Masukkan pilihan >> """)
+        if self.pilihan == "a":
+            guru.setNama(input("Masukkan nama guru >> "))
+            cursor.execute("UPDATE tab_teachers set NAMA = ? WHERE teacher_id = ?", (guru.getNama(), nomorid))
+            conn.commit()
+        elif self.pilihan == "b":
+            guru.setMapel(input("Masukkan mapel guru >> "))
+            cursor.execute("UPDATE tab_teachers set MAPEL = ? WHERE teacher_id = ?", (guru.getMapel(), nomorid))
+            conn.commit()
+        elif self.pilihan == "c":
+            gender = input("Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
+            if gender == "l":
+                gender = "Laki-Laki"
+            elif gender == "p":
+                gender = "Perempuan"
+            else:
+                gender = "unset"
+            guru.setGender(gender)
+            cursor.execute("UPDATE tab_teachers set jenis_kelamin = ? WHERE teacher_id = ?", (guru.getGender(), nomorid))
+            conn.commit()
+        elif self.pilihan == "d":
+            guru.setAlamat("Masukkan alamat >> ")
+            cursor.execute("UPDATE tab_teachers set Alamat = ? WHERE teacher_id = ?", (guru.getAlamat(), nomorid))
+            conn.commit()
+        elif self.pilihan == "e":
+            guru.setPhone("Masukkan nomor hp >> ")
+            cursor.execute("UPDATE tab_teachers set Phone = ? WHERE teacher_id = ?", (guru.getPhone(), nomorid))
+            conn.commit()
+        else:
+            return "Pilihan tidak terdapat pada menu"
+        return "Kembali ke menu.."
 
     def mengelolaGuru(self):
         self.pilihan = input("""=============================================
@@ -381,7 +435,7 @@ Silahkan pilih menu yang anda inginkan:
 [a] Lihat Guru
 [b] Tambah Guru
 [c] Hapus Guru
-[d] Edit Guru <- Ongoing
+[d] Edit Guru
 [e] Kembali ke Menu Admin <- Ongoing
 =============================================
 Masukkan pilihan >> """)
@@ -392,7 +446,7 @@ Masukkan pilihan >> """)
         elif self.pilihan == "c":
             return self.hapusGuru()
         elif self.pilihan == "d":
-            return "NOT YET"
+            return self.editGuru()
         elif self.pilihan == "e":
             return "NOT YET"
         else:
@@ -436,9 +490,9 @@ Masukkan pilihan >> """)
         klasid = int(input("Masukkan id kelas >> "))
         guruid = int(input("Masukkan id guru >> "))
         hari = input("Masukkan hari >> ").upper()
-        tg = input("Masukkan tanggal (DD) >> ")
-        bln = input("Masukkan bulan (MM) >> ")
         thn = input("Masukkan tahun (YYYY) >> ")
+        bln = input("Masukkan bulan (MM) >> ")
+        tg = input("Masukkan tanggal (DD) >> ")
         tanggal = "{}/{}/{}".format(tg, bln, thn)
         waktumulai = input(
             "Masukkan waktu mulai dengan format jam 24.00 >> ")
@@ -456,6 +510,57 @@ Masukkan pilihan >> """)
             print(">> Jadwal berhasil ditambahkan")
         else:
             print(">> Jadwal crash, silahkan tambahkan ulang")
+    
+    def editJadwal(self):
+        data = []
+        nomorid = input("Masukkan id jadwal yang akan diedit >> ")
+        query = cursor.execute("SELECT * FROM tab_schedules WHERE id = ?", (nomorid,))
+        if query.fetchone() is None:
+            return("Jadwal tidak ada") 
+        else:
+            query = cursor.execute("SELECT * FROM tab_schedules WHERE id = ?", (nomorid,))
+            for row in query:
+                data.append(row)
+            jadwal = Schedule(data[0][1], data[0][2], data[0][3], data[0][4], data[0][5], data[0][6], nomorid)
+            self.clear()
+            self.pilihan = input("""=============================================
+               EDIT DATA JADWAL               
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Edit Kelas
+[b] Edit Guru Pengajar
+[c] Edit Hari
+[d] Edit Tanggal
+[e] Edit Waktu
+[f] Edit Catatan
+=============================================
+Masukkan pilihan >> """)
+        if self.pilihan == "a":
+            jadwal.setKelas(input("Masukkan id kelas >> "))
+            cursor.execute("UPDATE tab_schedules set class_id = ? WHERE id = ?", (jadwal.getKelas(), nomorid))
+            conn.commit()
+        elif self.pilihan == "b":
+            jadwal.setGuru(input("Masukkan id guru >> "))
+            cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (jadwal.getGuru(), nomorid))
+            conn.commit()
+        # elif self.pilihan == "c":
+        #     jadwal.setHari(input("Masukkan nama")).upper()
+        #     cursor.execute("UPDATE tab_schedules set DAY = ? WHERE id = ?", (jadwal.getHari(), nomorid))
+        #     conn.commit()
+        # elif self.pilihan == "d":
+        #     jadwal.setDate("Masukkan tanggal >> ")
+        #     cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (guru.getAlamat(), nomorid))
+        #     conn.commit()
+        # elif self.pilihan == "e":
+        #     jadwal.setWaktu("Masukkan nomor hp >> ")
+        #     cursor.execute("UPDATE tab_teachers set Phone = ? WHERE teacher_id = ?", (guru.getPhone(), nomorid))
+        #     conn.commit()
+        elif self.pilihan == "f":
+            jadwal.setNote("Masukkan catatan >> ")
+            cursor.execute("UPDATE tab_schedules set NOTE = ? WHERE id = ?", jadwal.getNote(), nomorid)
+        else:
+            return "Pilihan tidak terdapat pada menu"
+        return "Kembali ke menu.."
 
     def mengelolaJadwal(self):
         self.pilihan = input("""=============================================
@@ -465,7 +570,7 @@ Silahkan pilih menu yang anda inginkan:
 [a] Lihat Jadwal
 [b] Tambah Jadwal
 [c] Hapus Jadwal
-[d] Edit Jadwal <-Ongoing
+[d] Edit Jadwal
 [e] Kembali ke Menu Admin <- Ongoing
 =============================================
 Masukkan pilihan >> """)
@@ -476,7 +581,7 @@ Masukkan pilihan >> """)
         elif self.pilihan == "c":
             return self.hapusJadwal()
         elif self.pilihan == "d":
-            return "NOT YET"
+            return self.editJadwal()
         elif self.pilihan == "e":
             return "NOT YET"
         else:

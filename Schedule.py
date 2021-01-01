@@ -20,17 +20,32 @@ class Schedule:
     def getKelas(self):
         return self._kelas
 
+    def setKelas(self, value):
+        self._kelas = value
+
     def getGuru(self):
         return self._teacher
+
+    def setGuru(self, value):
+        self._teacher = value
 
     def getHari(self):
         return self._day
 
+    def setHari(self, value):
+        self._day = value
+
     def getTanggal(self):
         return self._date
 
+    def setTanggal(self, value):
+        self._date = value
+
     def getWaktu(self):
         return self._time
+        
+    def setWaktu(self, value):
+        self._time = value
 
     def getNote(self):
         return self._note

@@ -15,6 +15,9 @@ class Teacher(User):
     def getMapel(self):
         return self._mapel
 
+    def setMapel(self, value):
+        self._mapel = value
+
     def dataDiri(self):
         query = conn.execute('''\
             SELECT tab_teachers.teacher_id, tab_teachers.nama, tab_teachers.jenis_kelamin, tab_teachers.mapel, tab_teachers.alamat, tab_teachers.phone

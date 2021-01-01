@@ -1,10 +1,7 @@
 import sqlite3
-from User import User
 from Student import Student
 from Teacher import Teacher
 from Admin import Admin
-from Schedule import Schedule
-from Classes import Classes
 import os
 
 DbName = 'db_leslesan.db'
