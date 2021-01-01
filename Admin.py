@@ -1,7 +1,9 @@
 import sqlite3
 import os
+from Schedule import Schedule
 from Classes import Classes
 from Student import Student
+from Teacher import Teacher
 DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
@@ -307,6 +309,7 @@ Silahkan pilih menu yang anda inginkan:
 [e] Tambahkan Siswa
 [f] Edit Siswa
 [g] Hapus Siswa
+[h] Kembali ke Menu Admin <-Ongoing
 =============================================
 Masukkan pilihan >> """)
         if self.pilihan == "a":
@@ -324,8 +327,157 @@ Masukkan pilihan >> """)
             return self.editSiswa()
         elif self.pilihan == "g":
             return self.hapusSiswa()
+        elif self.pilihan == "h":
+            return "NOT YET"
         else:
             return("Menu tidak tersedia")
 
     def clear(self):
         os.system('cls')
+
+    def lihatGuru(self):
+        query = cursor.execute('''
+                SELECT tab_teachers.nama, tab_teachers.mapel, tab_teachers.jenis_kelamin, tab_teachers.alamat, tab_teachers.phone FROM tab_teachers''')
+        for row in query:
+            print (f"""
+                    Nama: {row[0]}
+                    Bidang: {row[1]}
+                    Jenis Kelamin: {row[2]}
+                    Alamat: {row[3]}
+                    No.HP: {row[4]}
+                """)
+        return ("\nFinish !!")
+    
+    def tambahGuru(self):
+        nama = input("Masukkan nama >> ")
+        mapel = input("Masukkan mata pelajaran >> ")
+        jk = input(
+            "Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
+        if jk == "l":
+            jk = "Laki-Laki"
+        elif jk == "p":
+            jk = "Perempuan"
+        else:
+            jk = "unset"
+        alamat = input("Masukkan alamat >> ")
+        nohp = input("Masukkan nomor hp >> ")
+        guru = Teacher(nama, jk, mapel, alamat,
+                nohp, 1)
+        tempo = cursor.execute(
+            "select * from tab_teachers where PHONE = ?", (guru.getPhone(),))
+        if tempo.fetchone() is None:
+            cursor.execute("insert into tab_teachers (NAMA, JENIS_KELAMIN, MAPEL, ALAMAT, PHONE) values (?,?,?,?,?)", (
+                guru.getNama(), guru.getGender(), guru.getMapel(), guru.getAlamat(), guru.getPhone()))
+            conn.commit()
+            return (">> Guru berhasil didaftarkan")
+        else:
+            return (">> Guru sudah terdaftar")
+
+    def mengelolaGuru(self):
+        self.pilihan = input("""=============================================
+                KELOLA GURU                 
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Lihat Guru
+[b] Tambah Guru
+[c] Hapus Guru
+[d] Edit Guru <- Ongoing
+[e] Kembali ke Menu Admin <- Ongoing
+=============================================
+Masukkan pilihan >> """)
+        if self.pilihan == "a":
+            return self.lihatGuru()
+        elif self.pilihan == "b":
+            return self.tambahGuru()
+        elif self.pilihan == "c":
+            return self.hapusGuru()
+        elif self.pilihan == "d":
+            return "NOT YET"
+        elif self.pilihan == "e":
+            return "NOT YET"
+        else:
+            return "Menu tidak tersedia"
+
+    def lihatJadwal(self):
+        query = cursor.execute("""
+        SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
+        FROM tab_schedules
+        INNER JOIN tab_classes 
+        ON tab_schedules.class_id = tab_classes.class_id
+        INNER JOIN tab_teachers
+        ON tab_schedules.teacher_id = tab_teachers.teacher_id
+        """)
+
+        for row in query:
+            print(f"""
+                Pengajar: {row[0]}
+                Mata Pelajaran: {row[6]}
+                Kelas: {row[1]}
+                Waktu: {row[2]}, {row[3]}, {row[4]}
+                Note: {row[5]}
+            """)
+        return "Finish !!"
+
+    def tambahJadwal(self):
+        klaslist = []
+        gurulist = []
+        sql1 = cursor.execute(
+            "select class_id from tab_classes")
+        for i in sql1:
+            klaslist.append(i)
+        res1 = str(klaslist)[1:-1]
+        print(f"List kelas tersedia: {res1}")
+        sql2 = cursor.execute(
+            "select teacher_id from tab_teachers")
+        for i in sql2:
+            gurulist.append(i)
+        res2 = str(gurulist)[1:-1]
+        print(f"List guru tersedia: {res2}")
+        klasid = int(input("Masukkan id kelas >> "))
+        guruid = int(input("Masukkan id guru >> "))
+        hari = input("Masukkan hari >> ").upper()
+        tg = input("Masukkan tanggal (DD) >> ")
+        bln = input("Masukkan bulan (MM) >> ")
+        thn = input("Masukkan tahun (YYYY) >> ")
+        tanggal = "{}/{}/{}".format(tg, bln, thn)
+        waktumulai = input(
+            "Masukkan waktu mulai dengan format jam 24.00 >> ")
+        waktuakhir = input(
+            "Masukkan waktu selesai dengan format jam 24.00 >> ")
+        waktu = "{} s/d {}".format(waktumulai, waktuakhir)
+        jadwal = Schedule(1, klasid, guruid,
+                          hari, tanggal, waktu, 1)
+        tempor = cursor.execute(
+            "select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
+        if tempor.fetchone() is None:
+            cursor.execute("insert into tab_schedules (class_id, teacher_id, DAY, DATE, TIME) values (?,?,?,?,?)", (
+                jadwal.getKelas(), jadwal.getGuru(), jadwal.getHari(), jadwal.getTanggal(), jadwal.getWaktu()))
+            conn.commit()
+            print(">> Jadwal berhasil ditambahkan")
+        else:
+            print(">> Jadwal crash, silahkan tambahkan ulang")
+
+    def mengelolaJadwal(self):
+        self.pilihan = input("""=============================================
+                KELOLA JADWAL                 
+=============================================
+Silahkan pilih menu yang anda inginkan:
+[a] Lihat Jadwal
+[b] Tambah Jadwal
+[c] Hapus Jadwal
+[d] Edit Jadwal <-Ongoing
+[e] Kembali ke Menu Admin <- Ongoing
+=============================================
+Masukkan pilihan >> """)
+        if self.pilihan == "a":
+            return self.lihatJadwal()
+        elif self.pilihan == "b":
+            return self.tambahJadwal()
+        elif self.pilihan == "c":
+            return self.hapusJadwal()
+        elif self.pilihan == "d":
+            return "NOT YET"
+        elif self.pilihan == "e":
+            return "NOT YET"
+        else:
+            return "Menu tidak tersedia"
