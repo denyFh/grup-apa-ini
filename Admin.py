@@ -120,7 +120,7 @@ No.HP: {row[5]}""")
             return(">> Kelas tidak terdaftar")
 
     def tambahKelas(self):
-        kelas = Classes(input("Masukkan nama kelas >> "))
+        kelas = Classes(input("Masukkan nama kelas >> ").upper())
         self.tempo = cursor.execute(
             "select * from tab_classes where nama = ?", (kelas.getClassName(),))
         if self.tempo.fetchone() is None:
@@ -143,15 +143,27 @@ No.HP: {row[5]}""")
             return("Password salah, coba lagi nanti")
 
     def hapusKelas(self):
-        delKelas = (input("Masukkan nama kelas yang ingin dihapus >> ")).upper()
+        delKelas = (input("Masukkan nama kelas yang ingin dihapus >> ").upper())
         req = input("Masukkan password >> ")
         if req == self.getPassword():
             cursor.execute(
                 "delete from tab_classes where nama = ?", (delKelas,))
             conn.commit()
+            self.resetsequenceKelas()
             return (">> Kelas berhasil dihapus")
         else:
             return(">> Password salah, coba lagi nanti")
+
+    def resetsequenceKelas(self):
+        jmlkelas = []
+        self.query = cursor.execute(
+            "select * from tab_classes")
+        for row in self.query:
+            jmlkelas.append(row)
+        jmlseq = len(jmlkelas)
+        cursor.execute(
+            "update 'sqlite_sequence' set 'seq' = ? where name = 'tab_classes'", (str(jmlseq),))
+        conn.commit()
 
     def tambahSiswa(self):
         nama = input("Masukkan nama >> ")
@@ -169,8 +181,8 @@ No.HP: {row[5]}""")
         query = cursor.execute(
             "SELECT * FROM tab_classes WHERE NAMA = ?", (kelas,))
         for row in query:
-            idkelas = int(row[0])
-        siswa = Student(nama, idkelas, gender, alamat, nohp, 1)
+            kelas = int(row[0])
+        siswa = Student(nama, kelas, gender, alamat, nohp, 1)
         tempo = cursor.execute(
             "select * from tab_students where PHONE = ?", (siswa.getPhone(),))
         if tempo.fetchone() is None:
@@ -242,9 +254,22 @@ Masukkan pilihan >> """)
             cursor.execute(
                 "delete from tab_students where student_id = ?", (nomorid,))
             conn.commit()
+            self.resetsequenceSiswa()
             return (">> Siswa berhasil dihapus")
         else:
             return(">> Password salah, coba lagi nanti")
+    
+    def resetsequenceSiswa(self):
+        jmlsiswa = []
+        self.query = cursor.execute(
+            "select * from tab_students")
+        for row in self.query:
+            jmlsiswa.append(row)
+        jmlseqa = len(jmlsiswa)
+        jmlseq = "190610{}".format(jmlseqa)
+        cursor.execute(
+            "update 'sqlite_sequence' set 'seq' = ? where name = 'tab_students'", (jmlseq,))
+        conn.commit()
 
     def hapusGuru(self):
         d = input("ingin menghapus data? ketik 'y' jika iya ")
@@ -258,9 +283,25 @@ Masukkan pilihan >> """)
                 cursor.execute(
                     "delete from tab_teachers where teacher_id = ?", (inpId,))
                 conn.commit()
+                self.resetsequenceGuru()
                 print(">> Guru telah dihapus")
         else:
             pass
+
+    def resetsequenceGuru(self):
+        jmlguru = []
+        self.query = cursor.execute(
+            "select * from tab_teachers")
+        for row in self.query:
+            jmlguru.append(row)
+        jmlseqa = len(jmlguru)
+        if jmlseqa < 10:
+            jmlseq = "1100{}".format(jmlseqa)
+        elif jmlseqa > 9:
+            jmlseq = "110{}".format(jmlseqa)
+        cursor.execute(
+            "update 'sqlite_sequence' set 'seq' = ? where name = 'tab_classes'", (jmlseq,))
+        conn.commit()
 
     def hapusJadwal(self):
         e = input("Ingin menghapus jadwal? ketik 'y' jika iya ")
@@ -493,13 +534,13 @@ Masukkan pilihan >> """)
         bln = input("Masukkan bulan (MM) >> ")
         tg = input("Masukkan tanggal (DD) >> ")
         tanggal = "{}/{}/{}".format(tg, bln, thn)
-        jammulai = input(int("Masukkan Jam Mulai"))
-        menitmulai = input(int("Masukkan Menit Mulai"))
-        jamakhir = input(int("Masukkan Jam Berakhir"))
-        menitakhir = input(int("Masukkan Menit Berakhir"))
-        if jammulai or jamakhir > 24:
+        jammulai = input("Masukkan Jam Mulai")
+        menitmulai = input("Masukkan Menit Mulai")
+        jamakhir = input("Masukkan Jam Berakhir")
+        menitakhir = input("Masukkan Menit Berakhir")
+        if int(jammulai) or int(jamakhir) > 24:
             print("Jam tidak exist")
-        elif menitmulai or menitakhir > 59:
+        elif int(menitmulai) or int(menitakhir) > 59:
             print("Menit tidak exist")
         else:
             waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)

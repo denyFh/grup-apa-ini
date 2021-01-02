@@ -82,7 +82,7 @@ No.HP: {row[5]}
                DAFTAR JADWAL                 
 =============================================""")
         for row in query:
-            Teacher.daftarid.append(row[0])
+            self.daftarid.append(row[0])
             print(f"""ID: {row[0]}
 Pengajar: {row[1]}
 Mata Pelajaran: {row[7]}
@@ -100,7 +100,8 @@ Note: {row[6]}
             note = input("Masukkan catatan: ")
             cursor.execute(
                 "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, jadwal))
-            if jadwal in Teacher.daftarid:
+            if jadwal in self.daftarid:
+                print (">> Catatan berhasil di tambahkan")
                 conn.commit()
             else:
                 print(
