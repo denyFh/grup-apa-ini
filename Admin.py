@@ -534,7 +534,7 @@ Silahkan pilih menu yang anda inginkan:
 [a] Edit Kelas
 [b] Edit Guru Pengajar
 [c] Edit Hari
-[d] Edit Tanggal <- NEED FIX 
+[d] Edit Tanggal
 [e] Edit Waktu
 [f] Edit Catatan
 =============================================
@@ -556,10 +556,13 @@ Masukkan pilihan >> """)
                 jadwal.setHari(inhari)
                 cursor.execute("UPDATE tab_schedules set DAY = ? WHERE id = ?", (jadwal.getHari(), nomorid))
                 conn.commit()
-        # elif self.pilihan == "d":
-        #     jadwal.setDate("Masukkan tanggal >> ")
-        #     cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (guru.getAlamat(), nomorid))
-        #     conn.commit()
+        elif self.pilihan == "d":
+            thn = input("Masukkan tahun (YYYY) >> ")
+            bln = input("Masukkan bulan (MM) >> ")
+            tg = input("Masukkan tanggal (DD) >> ")
+            tanggal = "{}/{}/{}".format(tg, bln, thn)
+            cursor.execute("UPDATE tab_schedules set DATE = ? WHERE id = ?", (jadwal.setTanggal(tanggal), nomorid))
+            conn.commit()
         elif self.pilihan == "e":
             jammulai = input(int("Masukkan Jam Mulai"))
             menitmulai = input(int("Masukkan Menit Mulai"))

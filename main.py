@@ -37,6 +37,7 @@ class Display:
         self.setguestID = input("Masukkan ID : ")
         if self.guestID.isdigit():
             self.guestID = int(self.guestID)
+            
         data = []
         query = self.cursor.execute(
             "SELECT * FROM tab_admins WHERE password=?", (self.guestID,))
