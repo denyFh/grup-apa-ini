@@ -8,25 +8,26 @@ DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
 
-
+#class admin
 class Admin:
+    #inisialisasi class object, berisi atribut admin
     def __init__(self, username, password, iD):
         self.__username = username
         self.__password = password
         self.id = iD
-
+    #mengambil atribut username
     def getUsername(self):
         return self.__username
-
+    #mengambil atribut password
     def getPassword(self):
         return self.__password
-
+    #merubah atau menambahkan atribut username
     def setUsername(self, value):
         self.__username = value
-
+    #merubah atau menambahkan atribut password
     def setPassword(self, value):
         self.__password = value
-
+    #menunjukkan detail data diri admin
     def detail(self):
         password = len(self.getPassword())*"*"
         return (f"""=============================================
@@ -36,32 +37,41 @@ Username = {self.getUsername()}
 Password = {password}
 """)
 
+    #mengedit atau mengubah username admin
     def editUsername(self):
         self.editusername = input("Masukkan username: ")
-        self.tempo = cursor.execute(
-            "select * from tab_admins where username = ?", (self.editusername,))
-        if self.tempo.fetchone() is None:
-            self.setUsername(self.editusername)
-            cursor.execute("UPDATE tab_admins set USERNAME = ? WHERE password = ?", (
-                self.getUsername(), self.getPassword()))
-            conn.commit()
-            return("Username berhasil diubah!")
+        if self.editusername != '':
+            self.tempo = cursor.execute(
+                "select * from tab_admins where username = ?", (self.editusername,))
+            if self.tempo.fetchone() is None:
+                self.setUsername(self.editusername)
+                cursor.execute("UPDATE tab_admins set USERNAME = ? WHERE password = ?", (
+                    self.getUsername(), self.getPassword()))
+                conn.commit()
+                return(" >> Username berhasil diubah!")
+            else:
+                return(" >> Username sudah digunakan, silahkan gunakan username lain")
         else:
-            return("Username sudah digunakan, silahkan gunakan username lain")
+            return(" >> Username tidak boleh kosong")
 
+    #mengedit atau mengubah password admin
     def editPassword(self):
         self.newpassword = input("Masukkan password baru: ")
-        self.tempo = cursor.execute(
-            "select * from tab_admins where password = ?", (self.newpassword,))
-        if self.tempo.fetchone() is None:
-            self.setPassword(self.newpassword)
-            cursor.execute("UPDATE tab_admins set password = ? WHERE username = ?",
-                           (self.getPassword(), self.getUsername()))
-            conn.commit()
-            return("Password berhasil diganti, silahkan login kembali untuk melanjutkan kegiatan")
+        if self.newpassword != '':
+            self.tempo = cursor.execute(
+                "select * from tab_admins where password = ?", (self.newpassword,))
+            if self.tempo.fetchone() is None:
+                self.setPassword(self.newpassword)
+                cursor.execute("UPDATE tab_admins set password = ? WHERE username = ?",
+                            (self.getPassword(), self.getUsername()))
+                conn.commit()
+                return(" >> Password berhasil diubah, silahkan login kembali untuk melanjutkan kegiatan")
+            else:
+                return(" >> Password sudah digunakan, silahkan gunakan password lain")
         else:
-            return("Password sudah digunakan, silahkan gunakan password lain")
+            return(" >> Password tidak boleh kosong")
 
+    #menu untuk mengedit data diri admin
     def editDataDiri(self):
         self.pilihan = input("""=============================================
                EDIT DATA DIRI                
@@ -86,6 +96,7 @@ Masukkan pilihan >> """)
         else:
             return("============ Menu Tidak Tersedia ============")
 
+    #melihat data kelas 
     def lihatKelas(self):
         self.kelas = []
         self.query = cursor.execute("SELECT * FROM tab_classes")
@@ -119,41 +130,76 @@ No.HP: {row[5]}""")
         else:
             return(">> Kelas tidak terdaftar")
 
+    #menambahkan data kelas
     def tambahKelas(self):
         kelas = Classes(input("Masukkan nama kelas >> ").upper())
-        self.tempo = cursor.execute(
-            "select * from tab_classes where nama = ?", (kelas.getClassName(),))
-        if self.tempo.fetchone() is None:
-            cursor.execute(
-                "insert into tab_classes (nama) values (?)", (kelas.getClassName()))
-            conn.commit()
-            return (">> Kelas berhasil ditambahkan")
+        if kelas != '':
+            self.tempo = cursor.execute(
+                "select * from tab_classes where nama = ?", (kelas.getClassName(),))
+            if self.tempo.fetchone() is None:
+                cursor.execute(
+                    "insert into tab_classes (nama) values (?)", (kelas.getClassName()))
+                conn.commit()
+                return (" >> Kelas berhasil ditambahkan")
+            else:
+                return (" >> Nama kelas sudah terdaftar")
         else:
-            return (">> Nama kelas sudah terdaftar")
+            return(" >> Nama Kelas tidak boleh kosong")
 
+    #mengedit data kelas
     def editKelas(self):
+        self.query = cursor.execute("SELECT * FROM tab_classes")
+        print("""=============================================
+                DAFTAR KELAS                 
+=============================================""")
+        for row in self.query:
+            print(f"""[{row[0]}] {row[1]}""")
         kelasid = input("Masukkan id kelas >> ")
-        nama = input("Masukkan nama kelas baru >> ")
-        req = input("Masukkan password >> ")
-        if req == self.__password:
-            cursor.execute("UPDATE tab_classes set NAMA = ? WHERE class_id = ?", (nama, kelasid))
-            conn.commit()
-            return("Data berhasil diubah!")
+        nama = input("Masukkan nama kelas baru >> ").upper()
+        if kelasid and nama != '':
+            req = input("Masukkan password >> ")
+            if req == self.__password:
+                self.tempo = cursor.execute(
+                "select * from tab_classes where nama = ?", (nama,))
+                if self.tempo.fetchone() is None:
+                    cursor.execute("UPDATE tab_classes set NAMA = ? WHERE class_id = ?", (nama, kelasid))
+                    conn.commit()
+                    return(" >> Data berhasil diubah!")
+                else:
+                    return(" >> Kelas sudah ada")
+            else:
+                return(" >> Password salah, coba lagi nanti")
         else:
-            return("Password salah, coba lagi nanti")
+            return(" >> ID atau Nama Kelas tidak boleh kosong")
 
+    #menghapus data kelas
     def hapusKelas(self):
+        self.query = cursor.execute("SELECT * FROM tab_classes")
+        print("""=============================================
+                DAFTAR KELAS                 
+=============================================""")
+        for row in self.query:
+            print(f"""[{row[0]}] {row[1]}""")
         delKelas = (input("Masukkan nama kelas yang ingin dihapus >> ").upper())
-        req = input("Masukkan password >> ")
-        if req == self.getPassword():
-            cursor.execute(
-                "delete from tab_classes where nama = ?", (delKelas,))
-            conn.commit()
-            self.resetsequenceKelas()
-            return (">> Kelas berhasil dihapus")
+        if delKelas != '':
+            req = input("Masukkan password >> ")
+            if req == self.getPassword():
+                self.tempo = cursor.execute(
+                "select * from tab_classes where nama = ?", (delKelas,))
+                if self.tempo.fetchone() != None:
+                    cursor.execute(
+                        "delete from tab_classes where nama = ?", (delKelas,))
+                    conn.commit()
+                    self.resetsequenceKelas()
+                    return (" >> Kelas berhasil dihapus")
+                else:
+                    return(" >> Kelas tidak terdaftar")
+            else:
+                return(" >> Password salah, coba lagi nanti")
         else:
-            return(">> Password salah, coba lagi nanti")
+            return(" >> Nama Kelas tidak boleh kosong")
 
+    #mengurutkan ulang kelas
     def resetsequenceKelas(self):
         jmlkelas = []
         self.query = cursor.execute(
@@ -165,6 +211,7 @@ No.HP: {row[5]}""")
             "update 'sqlite_sequence' set 'seq' = ? where name = 'tab_classes'", (str(jmlseq),))
         conn.commit()
 
+    #menambahkan data siswa
     def tambahSiswa(self):
         nama = input("Masukkan nama >> ")
         kelas = input("Masukkan nama kelas >> ")
@@ -178,22 +225,33 @@ No.HP: {row[5]}""")
             gender = "unset"
         alamat = input("Masukkan alamat >> ")
         nohp = input("Masukkan nomor hp >> ")
-        query = cursor.execute(
-            "SELECT * FROM tab_classes WHERE NAMA = ?", (kelas,))
-        for row in query:
-            kelas = int(row[0])
-        siswa = Student(nama, kelas, gender, alamat, nohp, 1)
-        tempo = cursor.execute(
-            "select * from tab_students where PHONE = ?", (siswa.getPhone(),))
-        if tempo.fetchone() is None:
-            cursor.execute("insert into tab_students (NAMA, KELAS, JENIS_KELAMIN, ALAMAT, PHONE) values (?,?,?,?,?)",
-                           (siswa.getNama(), siswa.getKelas(), siswa.getGender(), siswa.getAlamat(), siswa.getPhone()))
-            conn.commit()
-            return(">> Siswa berhasil didaftarkan")
+        condition = [nama, kelas, gender, alamat, nohp]
+        if '' not in condition:
+            query = cursor.execute(
+                "SELECT * FROM tab_classes WHERE NAMA = ?", (kelas,))
+            for row in query:
+                kelas = int(row[0])
+            siswa = Student(nama, kelas, gender, alamat, nohp, 1)
+            tempo = cursor.execute(
+                "select * from tab_students where PHONE = ?", (siswa.getPhone(),))
+            if tempo.fetchone() is None:
+                cursor.execute("insert into tab_students (NAMA, KELAS, JENIS_KELAMIN, ALAMAT, PHONE) values (?,?,?,?,?)",
+                            (siswa.getNama(), siswa.getKelas(), siswa.getGender(), siswa.getAlamat(), siswa.getPhone()))
+                conn.commit()
+                return(" >> Siswa berhasil didaftarkan")
+            else:
+                return(" >> Siswa sudah terdaftar")
         else:
-            return(">> Siswa sudah terdaftar")
+            return(" >> Semua data siswa harus terisi")
 
+    #mengedit data siswa
     def editSiswa(self):
+        self.query = cursor.execute("SELECT * FROM tab_students")
+        print("""=============================================
+                DAFTAR SISWA                 
+=============================================""")
+        for row in self.query:
+            print(f"""[{row[0]}] {row[1]}""")
         data = []
         nomorid = input("Masukkan id siswa yang akan diedit >> ")
         query = cursor.execute("SELECT * FROM tab_students WHERE student_id = ?", (nomorid,))
@@ -216,49 +274,87 @@ Silahkan pilih menu yang anda inginkan:
 [e] Edit Nomor Hp
 =============================================
 Masukkan pilihan >> """)
-            if self.pilihan == "a":
+            if self.pilihan == "a": #edit nama siswa
                 siswa.setNama(input("Masukkan nama siswa >> "))
-                cursor.execute("UPDATE tab_students set NAMA = ? WHERE student_id = ?", (siswa.getNama(), nomorid))
-                conn.commit()
-            elif self.pilihan == "b":
+                if siswa.getNama() != '':
+                    cursor.execute("UPDATE tab_students set NAMA = ? WHERE student_id = ?", (siswa.getNama(), nomorid))
+                    conn.commit()
+                    return "Nama berhasil diubah"
+                else:
+                    return "Nama tidak boleh kosong"
+            elif self.pilihan == "b": #edit kelas siswa
                 siswa.setKelas(input("Masukkan id kelas >> "))
-                cursor.execute("UPDATE tab_students set Kelas = ? WHERE student_id = ?", (siswa.getKelas(), nomorid))
-                conn.commit()
-            elif self.pilihan == "c":
+                if siswa.getKelas() != '':
+                    cursor.execute("UPDATE tab_students set Kelas = ? WHERE student_id = ?", (siswa.getKelas(), nomorid))
+                    conn.commit()
+                    return "Kelas berhasil diubah"
+                else:
+                    return "Kelas tidak boleh kosong"
+            elif self.pilihan == "c": #edit jenis kelamin siswa
                 gender = input("Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
                 if gender == "l":
                     gender = "Laki-Laki"
                 elif gender == "p":
                     gender = "Perempuan"
+                elif gender == '':
+                    gender = ''
                 else:
                     gender = "unset"
-                siswa.setGender(gender)
-                cursor.execute("UPDATE tab_students set jenis_kelamin = ? WHERE student_id = ?", (siswa.getGender(), nomorid))
-                conn.commit()
-            elif self.pilihan == "d":
+                if gender != '':
+                    siswa.setGender(gender)
+                    cursor.execute("UPDATE tab_students set jenis_kelamin = ? WHERE student_id = ?", (siswa.getGender(), nomorid))
+                    conn.commit()
+                    return "Jenis Kelamin berhasil diubah"
+                else:
+                    return "Jenis Kelamin tidak boleh kosong"
+            elif self.pilihan == "d": #edit alamat siswa
                 siswa.setAlamat("Masukkan alamat >> ")
-                cursor.execute("UPDATE tab_students set Alamat = ? WHERE student_id = ?", (siswa.getAlamat(), nomorid))
-                conn.commit()
-            elif self.pilihan == "e":
+                if siswa.getAlamat() != '':
+                    cursor.execute("UPDATE tab_students set Alamat = ? WHERE student_id = ?", (siswa.getAlamat(), nomorid))
+                    conn.commit()
+                    return "Alamat berhasil diubah"
+                else:
+                    return "Alamat tidak boleh kosong"
+            elif self.pilihan == "e": #edit nomor hp siswa
                 siswa.setPhone("Masukkan nomor hp >> ")
-                cursor.execute("UPDATE tab_students set Phone = ? WHERE student_id = ?", (siswa.getPhone(), nomorid))
-                conn.commit()
+                if siswa.getPhone() != '':
+                    cursor.execute("UPDATE tab_students set Phone = ? WHERE student_id = ?", (siswa.getPhone(), nomorid))
+                    conn.commit()
+                    return "Nomor Hp berhasil diubah"
+                else:
+                    return "Nomor Hp tidak boleh kosong"
             else:
                 return "Pilihan tidak terdapat pada menu"
             return "Kembali ke menu.."
 
+    #menghapus data siswa
     def hapusSiswa(self):
+        self.query = cursor.execute("SELECT * FROM tab_students")
+        print("""=============================================
+                DAFTAR SISWA                 
+=============================================""")
+        for row in self.query:
+            print(f"""[{row[0]}] {row[1]}""")
         nomorid = input("Masukkan id siswa yang akan dihapus >> ")
         req = input("Masukkan password >> ")
         if req == self.getPassword():
-            cursor.execute(
-                "delete from tab_students where student_id = ?", (nomorid,))
-            conn.commit()
-            self.resetsequenceSiswa()
-            return (">> Siswa berhasil dihapus")
+            if nomorid != '':
+                self.tempo = cursor.execute(
+                "SELECT * FROM tab_students WHERE student_id = ?", (nomorid,))
+                if self.tempo.fetchone() != None:
+                    cursor.execute(
+                        "delete from tab_students where student_id = ?", (nomorid,))
+                    conn.commit()
+                    self.resetsequenceSiswa()
+                    return (" >> Siswa berhasil dihapus")
+                else:
+                    return (" >> Siswa tidak terdaftar")
+            else:
+                return (" >> Harap isi ID Siswa yang ingin dihapus")
         else:
             return(">> Password salah, coba lagi nanti")
     
+    #mengurutkan ulang siswa
     def resetsequenceSiswa(self):
         jmlsiswa = []
         self.query = cursor.execute(
@@ -271,23 +367,28 @@ Masukkan pilihan >> """)
             "update 'sqlite_sequence' set 'seq' = ? where name = 'tab_students'", (jmlseq,))
         conn.commit()
 
+    #menghapus data guru
     def hapusGuru(self):
         d = input("ingin menghapus data? ketik 'y' jika iya ")
         if d == "y":
-            inpId = input("Masukkan id guru yang ingin dihapus ")
-            temp = cursor.execute(
-                "select * from tab_teachers where teacher_id = ?", (inpId,))
-            if temp.fetchone() is None:
-                print(">> Guru tidak ada")
+            inpId = input("Masukkan id guru yang ingin dihapus >> ")
+            if inpId != '':
+                temp = cursor.execute(
+                    "select * from tab_teachers where teacher_id = ?", (inpId,))
+                if temp.fetchone() is None:
+                    print(">> Guru tidak ada")
+                else:
+                    cursor.execute(
+                        "delete from tab_teachers where teacher_id = ?", (inpId,))
+                    conn.commit()
+                    self.resetsequenceGuru()
+                    return (" >> Guru telah dihapus")
             else:
-                cursor.execute(
-                    "delete from tab_teachers where teacher_id = ?", (inpId,))
-                conn.commit()
-                self.resetsequenceGuru()
-                print(">> Guru telah dihapus")
+                return (" >> Harap isi ID Guru yang akan dihapus")
         else:
             pass
 
+    #mengurutkan ulang guru
     def resetsequenceGuru(self):
         jmlguru = []
         self.query = cursor.execute(
@@ -303,6 +404,7 @@ Masukkan pilihan >> """)
             "update 'sqlite_sequence' set 'seq' = ? where name = 'tab_classes'", (jmlseq,))
         conn.commit()
 
+    #menghapus data jadwal
     def hapusJadwal(self):
         e = input("Ingin menghapus jadwal? ketik 'y' jika iya ")
         if e == "y":
@@ -338,6 +440,7 @@ Masukkan pilihan >> """)
         else:
             pass
 
+    #Mengelola data kelas
     def mengelolaKelas(self):
         self.pilihan = input("""=============================================
                 KELOLA KELAS                 
@@ -356,23 +459,31 @@ Masukkan pilihan >> """)
             self.clear()
             return self.lihatKelas()
         elif self.pilihan == "b":
+            self.clear()
             return self.tambahKelas()
         elif self.pilihan == "c":
+            self.clear()
             return self.editKelas()
         elif self.pilihan == "d":
+            self.clear()
             return self.hapusKelas()
         elif self.pilihan == "e":
+            self.clear()
             return self.tambahSiswa()
         elif self.pilihan == "f":
+            self.clear()
             return self.editSiswa()
         elif self.pilihan == "g":
+            self.clear()
             return self.hapusSiswa()
         else:
             return("Menu tidak tersedia")
 
+    #membersihkan console window
     def clear(self):
         os.system('cls')
 
+    #melihat data guru
     def lihatGuru(self):
         query = cursor.execute('''
                 SELECT tab_teachers.nama, tab_teachers.mapel, tab_teachers.jenis_kelamin, tab_teachers.alamat, tab_teachers.phone FROM tab_teachers''')
@@ -386,6 +497,7 @@ Masukkan pilihan >> """)
                 """)
         return ("\nFinish !!")
     
+    #menambahkan data guru
     def tambahGuru(self):
         nama = input("Masukkan nama >> ")
         mapel = input("Masukkan mata pelajaran >> ")
@@ -395,22 +507,29 @@ Masukkan pilihan >> """)
             jk = "Laki-Laki"
         elif jk == "p":
             jk = "Perempuan"
+        elif jk == '':
+            jk = ''
         else:
             jk = "unset"
         alamat = input("Masukkan alamat >> ")
         nohp = input("Masukkan nomor hp >> ")
-        guru = Teacher(nama, jk, mapel, alamat,
-                nohp, 1)
-        tempo = cursor.execute(
-            "select * from tab_teachers where PHONE = ?", (guru.getPhone(),))
-        if tempo.fetchone() is None:
-            cursor.execute("insert into tab_teachers (NAMA, JENIS_KELAMIN, MAPEL, ALAMAT, PHONE) values (?,?,?,?,?)", (
-                guru.getNama(), guru.getGender(), guru.getMapel(), guru.getAlamat(), guru.getPhone()))
-            conn.commit()
-            return (">> Guru berhasil didaftarkan")
+        condition = [nama, jk, mapel, alamat, nohp]
+        if '' not in condition:
+            guru = Teacher(nama, jk, mapel, alamat,
+                    nohp, 1)
+            tempo = cursor.execute(
+                "select * from tab_teachers where PHONE = ?", (guru.getPhone(),))
+            if tempo.fetchone() is None:
+                cursor.execute("insert into tab_teachers (NAMA, JENIS_KELAMIN, MAPEL, ALAMAT, PHONE) values (?,?,?,?,?)", (
+                    guru.getNama(), guru.getGender(), guru.getMapel(), guru.getAlamat(), guru.getPhone()))
+                conn.commit()
+                return (" >> Guru berhasil didaftarkan")
+            else:
+                return (" >> Guru sudah terdaftar")
         else:
-            return (">> Guru sudah terdaftar")
+            return (" >> Semua data Guru harus terisi")
     
+    #mengedit data guru
     def editGuru(self):
         data = []
         nomorid = input("Masukkan id guru yang akan diedit >> ")
@@ -434,37 +553,60 @@ Silahkan pilih menu yang anda inginkan:
 [e] Edit Nomor Hp
 =============================================
 Masukkan pilihan >> """)
-        if self.pilihan == "a":
+        if self.pilihan == "a": #edit nama guru
             guru.setNama(input("Masukkan nama guru >> "))
-            cursor.execute("UPDATE tab_teachers set NAMA = ? WHERE teacher_id = ?", (guru.getNama(), nomorid))
-            conn.commit()
-        elif self.pilihan == "b":
+            if guru.getNama() != '':
+                cursor.execute("UPDATE tab_teachers set NAMA = ? WHERE teacher_id = ?", (guru.getNama(), nomorid))
+                conn.commit()
+                return "Nama guru berhasil diubah"
+            else:
+                return "Nama guru tidak boleh kosong"
+        elif self.pilihan == "b": #edit mapel guru
             guru.setMapel(input("Masukkan mapel guru >> "))
-            cursor.execute("UPDATE tab_teachers set MAPEL = ? WHERE teacher_id = ?", (guru.getMapel(), nomorid))
-            conn.commit()
-        elif self.pilihan == "c":
+            if guru.getMapel() != '':
+                cursor.execute("UPDATE tab_teachers set MAPEL = ? WHERE teacher_id = ?", (guru.getMapel(), nomorid))
+                conn.commit()
+                return "Mapel guru berhasil diubah"
+            else:
+                return "Mapel guru tidak boleh kosong"
+        elif self.pilihan == "c": #edit jenis kelamin guru
             gender = input("Masukkan jenis kelamin (l) untuk laki laki dan (p) untuk perempuan >> ")
             if gender == "l":
                 gender = "Laki-Laki"
             elif gender == "p":
                 gender = "Perempuan"
+            elif gender == '':
+                gender = ''
             else:
                 gender = "unset"
-            guru.setGender(gender)
-            cursor.execute("UPDATE tab_teachers set jenis_kelamin = ? WHERE teacher_id = ?", (guru.getGender(), nomorid))
-            conn.commit()
-        elif self.pilihan == "d":
+            if gender != '':
+                guru.setGender(gender)
+                cursor.execute("UPDATE tab_teachers set jenis_kelamin = ? WHERE teacher_id = ?", (guru.getGender(), nomorid))
+                conn.commit()
+                return "Jenis Kelamin Guru berhasil diubah"
+            else:
+                return "Jenis Kelamin Guru tidak boleh kosong"
+        elif self.pilihan == "d": #edit alamat guru
             guru.setAlamat("Masukkan alamat >> ")
-            cursor.execute("UPDATE tab_teachers set Alamat = ? WHERE teacher_id = ?", (guru.getAlamat(), nomorid))
-            conn.commit()
-        elif self.pilihan == "e":
+            if guru.getAlamat() != '':
+                cursor.execute("UPDATE tab_teachers set Alamat = ? WHERE teacher_id = ?", (guru.getAlamat(), nomorid))
+                conn.commit()
+                return "Alamat Guru berhasil diubah"
+            else:
+                return "Alamat Guru tidak boleh kosong"
+        elif self.pilihan == "e": #edit nomor hp guru
             guru.setPhone("Masukkan nomor hp >> ")
-            cursor.execute("UPDATE tab_teachers set Phone = ? WHERE teacher_id = ?", (guru.getPhone(), nomorid))
-            conn.commit()
+            if guru.getPhone() != '':
+                cursor.execute("UPDATE tab_teachers set Phone = ? WHERE teacher_id = ?", (guru.getPhone(), nomorid))
+                conn.commit()
+                return "Nomor Hp Guru berhasil diubah"
+            else:
+                return "Nomor Hp Guru tidak boleh kosong"
         else:
             return "Pilihan tidak terdapat pada menu"
         return "Kembali ke menu.."
 
+    #mengelola data guru
     def mengelolaGuru(self):
         self.pilihan = input("""=============================================
                 KELOLA GURU                 
@@ -487,6 +629,7 @@ Masukkan pilihan >> """)
         else:
             return "Menu tidak tersedia"
 
+    #melihat data jadwal
     def lihatJadwal(self):
         query = cursor.execute("""
         SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
@@ -507,6 +650,7 @@ Masukkan pilihan >> """)
             """)
         return "Finish !!"
 
+    #menambahkan data jadwal
     def tambahJadwal(self):
         klaslist = []
         gurulist = []
@@ -544,18 +688,23 @@ Masukkan pilihan >> """)
             print("Menit tidak exist")
         else:
             waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)
-        jadwal = Schedule(1, klasid, guruid,
-                          hari, tanggal, waktu, 1)
-        tempor = cursor.execute(
-            "select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
-        if tempor.fetchone() is None:
-            cursor.execute("insert into tab_schedules (class_id, teacher_id, DAY, DATE, TIME) values (?,?,?,?,?)", (
-                jadwal.getKelas(), jadwal.getGuru(), jadwal.getHari(), jadwal.getTanggal(), jadwal.getWaktu()))
-            conn.commit()
-            print(">> Jadwal berhasil ditambahkan")
+        condition = [klasid, guruid, hari, tanggal, waktu]
+        if '' not in condition:
+            jadwal = Schedule(1, klasid, guruid,
+                            hari, tanggal, waktu, 1)
+            tempor = cursor.execute(
+                "select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
+            if tempor.fetchone() is None:
+                cursor.execute("insert into tab_schedules (class_id, teacher_id, DAY, DATE, TIME) values (?,?,?,?,?)", (
+                    jadwal.getKelas(), jadwal.getGuru(), jadwal.getHari(), jadwal.getTanggal(), jadwal.getWaktu()))
+                conn.commit()
+                print(" >> Jadwal berhasil ditambahkan")
+            else:
+                print(" >> Jadwal crash, silahkan tambahkan ulang")
         else:
-            print(">> Jadwal crash, silahkan tambahkan ulang")
+            return " >> Semua Data Jadwal harus terisi"
     
+    #mengedit data jadwal
     def editJadwal(self):
         data = []
         nomorid = input("Masukkan id jadwal yang akan diedit >> ")
@@ -580,15 +729,25 @@ Silahkan pilih menu yang anda inginkan:
 [f] Edit Catatan
 =============================================
 Masukkan pilihan >> """)
-        if self.pilihan == "a":
+        if self.pilihan == "a": #edit kelas
             jadwal.setKelas(input("Masukkan id kelas >> "))
-            cursor.execute("UPDATE tab_schedules set class_id = ? WHERE id = ?", (jadwal.getKelas(), nomorid))
-            conn.commit()
-        elif self.pilihan == "b":
+            if jadwal.getKelas() != '':
+                cursor.execute("UPDATE tab_schedules set class_id = ? WHERE id = ?", (jadwal.getKelas(), nomorid))
+                conn.commit()
+                return "ID Kelas berhasil diubah"
+            else:
+                return "ID Kelas tidak boleh kosong"
+
+        elif self.pilihan == "b": #edit guru pengajar
             jadwal.setGuru(input("Masukkan id guru >> "))
-            cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (jadwal.getGuru(), nomorid))
-            conn.commit()
-        elif self.pilihan == "c":
+            if jadwal.getGuru() != '':
+                cursor.execute("UPDATE tab_schedules set teacher_id = ? WHERE id = ?", (jadwal.getGuru(), nomorid))
+                conn.commit()
+                return "ID Guru berhasil diubah"
+            else:
+                return "ID Guru tidak boleh kosong"
+
+        elif self.pilihan == "c": #edit hari
             listhari = ['SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU','MINGGU']
             inhari = input("Masukkan hari >> ").upper()
             if inhari not in listhari:
@@ -597,34 +756,54 @@ Masukkan pilihan >> """)
                 jadwal.setHari(inhari)
                 cursor.execute("UPDATE tab_schedules set DAY = ? WHERE id = ?", (jadwal.getHari(), nomorid))
                 conn.commit()
-        elif self.pilihan == "d":
+                return "Hari berhasil diubah"
+
+        elif self.pilihan == "d": #edit tanggal
             thn = input("Masukkan tahun (YYYY) >> ")
             bln = input("Masukkan bulan (MM) >> ")
             tg = input("Masukkan tanggal (DD) >> ")
-            tanggal = "{}/{}/{}".format(tg, bln, thn)
-            cursor.execute("UPDATE tab_schedules set DATE = ? WHERE id = ?", (jadwal.setTanggal(tanggal), nomorid))
-            conn.commit()
-        elif self.pilihan == "e":
+            condition = [thn, bln, tg]
+            if '' not in condition:
+                tanggal = "{}/{}/{}".format(tg, bln, thn)
+                cursor.execute("UPDATE tab_schedules set DATE = ? WHERE id = ?", (jadwal.setTanggal(tanggal), nomorid))
+                conn.commit()
+                return "Tanggal berhasil diubah"
+            else:
+                return "Data Tanggal tidak boleh kosong"
+
+        elif self.pilihan == "e": #edit waktu
             jammulai = input(int("Masukkan Jam Mulai"))
             menitmulai = input(int("Masukkan Menit Mulai"))
             jamakhir = input(int("Masukkan Jam Berakhir"))
             menitakhir = input(int("Masukkan Menit Berakhir"))
-            if jammulai or jamakhir > 24:
-                print("Jam tidak exist")
-            elif menitmulai or menitakhir > 59:
-                print("Menit tidak exist")
+            condition = [jammulai, menitmulai, jamakhir, menitakhir]
+            if '' not in condition:
+                if jammulai or jamakhir > 24:
+                    print("Jam tidak exist")
+                elif menitmulai or menitakhir > 59:
+                    print("Menit tidak exist")
+                else:
+                    waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)
+                    jadwal.setWaktu(waktu)
+                    cursor.execute("UPDATE tab_teachers set TIME = ? WHERE id = ?", (jadwal.getWaktu(), nomorid))
+                    conn.commit()
+                    return "Jam berhasil diubah"
             else:
-                waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)
-                jadwal.setWaktu(waktu)
-                cursor.execute("UPDATE tab_teachers set TIME = ? WHERE id = ?", (jadwal.getWaktu(), nomorid))
-                conn.commit()
-        elif self.pilihan == "f":
+                return "Data jam tidak boleh kosong"
+
+        elif self.pilihan == "f": #edit catatan
             jadwal.setNote("Masukkan catatan >> ")
-            cursor.execute("UPDATE tab_schedules set NOTE = ? WHERE id = ?", jadwal.getNote(), nomorid)
+            if jadwal.getNote() != '':
+                cursor.execute("UPDATE tab_schedules set NOTE = ? WHERE id = ?", jadwal.getNote(), nomorid)
+                conn.commit()
+                return "Note berhasil diubah"
+            else:
+                return "Note tidak boleh kosong"
         else:
             return "Pilihan tidak terdapat pada menu"
         return "Kembali ke menu.."
 
+    #mengelola data jadwal
     def mengelolaJadwal(self):
         self.pilihan = input("""=============================================
                 KELOLA JADWAL                 

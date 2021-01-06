@@ -6,24 +6,27 @@ import os
 
 DbName = 'db_leslesan.db'
 
-
+#class tampilan awal
 class Display:
+    #inisialisasi class object
     def __init__(self, guestID=None):
         self.conn = sqlite3.connect(DbName)
         self.cursor = self.conn.cursor()
         self.guestID = guestID
 
+    #membersihkan console window
     def clear(self):
         os.system('cls')
 
-    @property
+    @property #dekorator setter getter
     def setguestID(self):
         pass
 
-    @setguestID.setter
+    @setguestID.setter #men-set guestID, mengambil parameter dan memasukkan pada atribut class
     def setguestID(self, value):
         self.guestID = value
 
+    #login / masuk pada program
     def Login(self):
         self.clear()
         global admin
@@ -80,7 +83,8 @@ class Display:
                 input("(Press Enter to Continue...)\n")
                 self.Login()
 
-    def role(self, x):
+    #menentukan role atau peran user
+    def role(self, x): #metode overloading
         if type(x) == str:
             return "Admin"
         elif type(x) == int:
@@ -89,6 +93,7 @@ class Display:
             elif len(str(x)) == 5:
                 return "Guru"
 
+    #menunjukkan menu siswa
     def menuSiswa(self):
         self.clear()
         print(f"""Hello {siswa.getNama()}! ({self.role(self.guestID)})
@@ -124,6 +129,7 @@ Silahkan pilih menu yang anda inginkan:
         else:
             self.exit()
 
+    #menunjukkan menu guru
     def menuGuru(self):
         self.clear()
         print(f"""Hello {guru.getNama()}! ({self.role(self.guestID)})
@@ -159,6 +165,7 @@ Silahkan pilih menu yang anda inginkan:
         else:
             self.exit()
 
+    #menunjukkan menu admin
     def menuAdmin(self):
         self.clear()
         print(f"""Hello {admin.getUsername()}! ({self.role(self.guestID)})
@@ -207,6 +214,7 @@ Silahkan pilih menu yang anda inginkan:
         else:
             self.exit()
 
+    #menutup koneksi pada db dan program
     def exit(self):
         print("""
 ============= SEE YOU NEXT TIME =============

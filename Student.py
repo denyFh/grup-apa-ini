@@ -4,19 +4,22 @@ DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
 
-
+#class murid, merupakan peranakan / turunan dari class user
 class Student(User):
-
+    #inisialisasi class object, atribut diambil dari class user dan terdapat perbedaan/tambahan atribut kelas
     def __init__(self, nama, kelas, gender, alamat, phone, iD):
         super().__init__(nama, gender, alamat, phone, iD)
         self._kelas = kelas
 
+    #mengambil atribut kelas
     def getKelas(self):
         return self._kelas
 
+    #merubah atau menambahkan atribut kelas
     def setKelas(self, value):
         self._kelas = value
 
+    #melihat data diri murid
     def dataDiri(self):
         query = cursor.execute('''\
             SELECT tab_students.student_id, tab_students.nama, tab_classes.nama, tab_students.jenis_kelamin, tab_students.alamat, tab_students.phone
@@ -37,6 +40,7 @@ Nomor telepon\t: {row[5]}
 =============================================
 """)
 
+    #melihat jadwal murid
     def lihatJadwal(self):
         query0 = cursor.execute(
             """SELECT KELAS from tab_students
@@ -64,6 +68,7 @@ Note: {row[6]}
 =============================================""")
         print()
 
+    #melihat data guru yang mengajar
     def lihatPengajar(self):
         self.pilihan = input("""=============================================
                LIHAT PENGAJAR                

@@ -4,20 +4,23 @@ DbName = 'db_leslesan.db'
 conn = sqlite3.connect(DbName)
 cursor = conn.cursor()
 
-
+#class guru, merupakan peranakan / turunan dari class user
 class Teacher(User):
     daftarid = []
-
+    #inisialisasi class object, atribut diambil dari class user dan terdapat perbedaan/tambahan atribut mapel
     def __init__(self, nama, gender, mapel, alamat, phone, iD):
         super().__init__(nama, gender, alamat, phone, iD)
         self._mapel = mapel
 
+    #mengambil atribut mapel
     def getMapel(self):
         return self._mapel
 
+    #merubah atau menambahkan atribut mapel
     def setMapel(self, value):
         self._mapel = value
 
+    #melihat data diri guru
     def dataDiri(self):
         query = conn.execute('''\
             SELECT tab_teachers.teacher_id, tab_teachers.nama, tab_teachers.jenis_kelamin, tab_teachers.mapel, tab_teachers.alamat, tab_teachers.phone
@@ -35,6 +38,7 @@ Nomor telepon\t: {row[5]}
 =============================================
 """)
 
+    #melihat data kelas yang akan diajar guru
     def lihatKelas(self):
         self.kelas = []
         self.query = cursor.execute("SELECT * FROM tab_classes")
@@ -68,6 +72,7 @@ No.HP: {row[5]}
         else:
             print(">> Kelas tidak terdaftar\n")
 
+    #melihat jadwal mengajar guru
     def lihatJadwal(self):
         query = conn.execute("""
         SELECT tab_schedules.id, tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
@@ -82,7 +87,7 @@ No.HP: {row[5]}
                DAFTAR JADWAL                 
 =============================================""")
         for row in query:
-            self.daftarid.append(row[0])
+            Teacher.daftarid.append(row[0])
             print(f"""ID: {row[0]}
 Pengajar: {row[1]}
 Mata Pelajaran: {row[7]}
@@ -93,18 +98,22 @@ Note: {row[6]}
         print()
         self.editCatatan()
 
+    #mengedit atau menambahkan catatan pada kolom note jadwal sesuai dengan guru yang akan mengajar
     def editCatatan(self):
         a = input("Edit catatan? (ketik 'y' jika iya) ")
         if a == "y":
             jadwal = input("Masukkan ID Jadwal: ")
             note = input("Masukkan catatan: ")
-            cursor.execute(
-                "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, jadwal))
-            if jadwal in self.daftarid:
-                print (">> Catatan berhasil di tambahkan")
-                conn.commit()
+            if jadwal and note != '':
+                cursor.execute(
+                    "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, int(jadwal)))
+                if jadwal in Teacher.daftarid:
+                    print (">> Catatan berhasil di tambahkan")
+                    conn.commit()
+                else:
+                    print(
+                        ">> Hubungi guru yang bertugas untuk memberikan catatan")
             else:
-                print(
-                    ">> Hubungi guru yang bertugas untuk memberikan catatan")
+                print("Tolong isi semua isian")
         else:
             pass
