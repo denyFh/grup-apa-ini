@@ -102,11 +102,11 @@ Note: {row[6]}
     def editCatatan(self):
         a = input("Edit catatan? (ketik 'y' jika iya) ")
         if a == "y":
-            jadwal = input("Masukkan ID Jadwal: ")
+            jadwal = int(input("Masukkan ID Jadwal: "))
             note = input("Masukkan catatan: ")
             if jadwal and note != '':
                 cursor.execute(
-                    "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, int(jadwal)))
+                    "UPDATE tab_schedules set NOTE = ? WHERE id = ?", (note, jadwal))
                 if jadwal in Teacher.daftarid:
                     print (">> Catatan berhasil di tambahkan")
                     conn.commit()
