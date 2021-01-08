@@ -101,7 +101,7 @@ No.HP: {row[4]}
         elif self.pilihan == "b":
             self.clear()
             mapel = input(
-                "Masukkan mata pelajaran yang diampu >> ").capitalize()
+                "Masukkan mata pelajaran yang diampu >> ").title()
             query = cursor.execute('''
                 SELECT tab_teachers.nama, tab_teachers.mapel, tab_teachers.jenis_kelamin, tab_teachers.alamat, tab_teachers.phone FROM tab_teachers WHERE tab_teachers.Mapel = ?''', (mapel,))
             if query.fetchone() is None:
