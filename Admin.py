@@ -308,7 +308,7 @@ Masukkan pilihan >> """)
                 else:
                     return "Jenis Kelamin tidak boleh kosong"
             elif self.pilihan == "d": #edit alamat siswa
-                siswa.setAlamat("Masukkan alamat >> ")
+                siswa.setAlamat(input("Masukkan alamat >> "))
                 if siswa.getAlamat() != '':
                     cursor.execute("UPDATE tab_students set Alamat = ? WHERE student_id = ?", (siswa.getAlamat(), nomorid))
                     conn.commit()
@@ -316,7 +316,7 @@ Masukkan pilihan >> """)
                 else:
                     return "Alamat tidak boleh kosong"
             elif self.pilihan == "e": #edit nomor hp siswa
-                siswa.setPhone("Masukkan nomor hp >> ")
+                siswa.setPhone(input("Masukkan nomor hp >> "))
                 if siswa.getPhone() != '':
                     cursor.execute("UPDATE tab_students set Phone = ? WHERE student_id = ?", (siswa.getPhone(), nomorid))
                     conn.commit()
@@ -336,9 +336,9 @@ Masukkan pilihan >> """)
         for row in self.query:
             print(f"""[{row[0]}] {row[1]}""")
         nomorid = input("Masukkan id siswa yang akan dihapus >> ")
-        req = input("Masukkan password >> ")
-        if req == self.getPassword():
-            if nomorid != '':
+        if nomorid != '':
+            req = input("Masukkan password >> ")
+            if req == self.getPassword():
                 self.tempo = cursor.execute(
                 "SELECT * FROM tab_students WHERE student_id = ?", (nomorid,))
                 if self.tempo.fetchone() != None:
@@ -350,9 +350,9 @@ Masukkan pilihan >> """)
                 else:
                     return (" >> Siswa tidak terdaftar")
             else:
-                return (" >> Harap isi ID Siswa yang ingin dihapus")
+                return(">> Password salah, coba lagi nanti")
         else:
-            return(">> Password salah, coba lagi nanti")
+            return (" >> Harap isi ID Siswa yang ingin dihapus")
     
     #mengurutkan ulang siswa
     def resetsequenceSiswa(self):
@@ -369,6 +369,12 @@ Masukkan pilihan >> """)
 
     #menghapus data guru
     def hapusGuru(self):
+        self.query = cursor.execute("SELECT * FROM tab_teachers")
+        print("""=============================================
+                DAFTAR GURU         
+=============================================""")
+        for row in self.query:
+            print(f"""[{row[0]}] {row[1]}""")
         d = input("ingin menghapus data? ketik 'y' jika iya ")
         if d == "y":
             inpId = input("Masukkan id guru yang ingin dihapus >> ")
@@ -376,7 +382,7 @@ Masukkan pilihan >> """)
                 temp = cursor.execute(
                     "select * from tab_teachers where teacher_id = ?", (inpId,))
                 if temp.fetchone() is None:
-                    print(">> Guru tidak ada")
+                    return(">> Guru tidak ada")
                 else:
                     cursor.execute(
                         "delete from tab_teachers where teacher_id = ?", (inpId,))
@@ -386,7 +392,7 @@ Masukkan pilihan >> """)
             else:
                 return (" >> Harap isi ID Guru yang akan dihapus")
         else:
-            pass
+            return (" >> Kembali ke Menu..")
 
     #mengurutkan ulang guru
     def resetsequenceGuru(self):
@@ -412,7 +418,7 @@ Masukkan pilihan >> """)
             temp = cursor.execute(
                 "select * from tab_schedules where DAY = ?", (f,))
             if temp.fetchone() is None:
-                print(">> Jadwal tidak ada")
+                return(">> Jadwal tidak ada")
             else:
                 tempf = cursor.execute(
                     "select * from tab_schedules where DAY = ?", (f,))
@@ -431,14 +437,14 @@ Masukkan pilihan >> """)
                 tempjid = cursor.execute(
                     "select * from tab_schedules where id = ?", (jid,))
                 if tempjid.fetchone() is None:
-                    print(">> ID Jadwal tidak ditemukan")
+                    return(">> ID Jadwal tidak ditemukan")
                 else:
                     cursor.execute(
                         "delete from tab_schedules where id = ?", (jid,))
                     conn.commit()
-                    print(">> Jadwal telah dihapus")
+                    return(">> Jadwal telah dihapus")
         else:
-            pass
+            return (" >> Kembali ke Menu..")
 
     #Mengelola data kelas
     def mengelolaKelas(self):
@@ -619,12 +625,16 @@ Silahkan pilih menu yang anda inginkan:
 =============================================
 Masukkan pilihan >> """)
         if self.pilihan == "a":
+            self.clear()
             return self.lihatGuru()
         elif self.pilihan == "b":
+            self.clear()
             return self.tambahGuru()
         elif self.pilihan == "c":
+            self.clear()
             return self.hapusGuru()
         elif self.pilihan == "d":
+            self.clear()
             return self.editGuru()
         else:
             return "Menu tidak tersedia"
@@ -632,7 +642,7 @@ Masukkan pilihan >> """)
     #melihat data jadwal
     def lihatJadwal(self):
         query = cursor.execute("""
-        SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL
+        SELECT tab_teachers.NAMA, tab_classes.NAMA, tab_schedules.DAY, tab_schedules.DATE, tab_schedules.TIME, tab_schedules.NOTE, tab_teachers.MAPEL, tab_schedules.id
         FROM tab_schedules
         INNER JOIN tab_classes 
         ON tab_schedules.class_id = tab_classes.class_id
@@ -642,6 +652,7 @@ Masukkan pilihan >> """)
 
         for row in query:
             print(f"""
+                ID Jadwal: {row[7]}
                 Pengajar: {row[0]}
                 Mata Pelajaran: {row[6]}
                 Kelas: {row[1]}
@@ -656,19 +667,23 @@ Masukkan pilihan >> """)
         gurulist = []
         listhari = ['SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU','MINGGU']
         sql1 = cursor.execute(
-            "select class_id from tab_classes")
+            "select class_id, nama from tab_classes")
         for i in sql1:
-            klaslist.append(i)
-        res1 = str(klaslist)[1:-1]
-        print(f"List kelas tersedia: {res1}")
+            klaslist.append([i[0], i[1]])
+        print("List kelas tersedia:")
+        for data in klaslist:
+            print(f"[{data[0]}] {data[1]}")
+        print("\n")
         sql2 = cursor.execute(
-            "select teacher_id from tab_teachers")
+            "select teacher_id, nama from tab_teachers")
         for i in sql2:
-            gurulist.append(i)
-        res2 = str(gurulist)[1:-1]
-        print(f"List guru tersedia: {res2}")
-        klasid = int(input("Masukkan id kelas >> "))
-        guruid = int(input("Masukkan id guru >> "))
+            gurulist.append([i[0],i[1]])
+        print("List guru tersedia:")
+        for data in gurulist:
+            print(f"[{data[0]}] {data[1]}")
+        print("\n")
+        klasid = input("Masukkan id kelas >> ")
+        guruid = input("Masukkan id guru >> ")
         inhari = input("Masukkan hari >> ").upper()
         if inhari not in listhari:
             print("Hari tidak terdaftar")
@@ -678,34 +693,36 @@ Masukkan pilihan >> """)
         bln = input("Masukkan bulan (MM) >> ")
         tg = input("Masukkan tanggal (DD) >> ")
         tanggal = "{}/{}/{}".format(tg, bln, thn)
-        jammulai = input("Masukkan Jam Mulai")
-        menitmulai = input("Masukkan Menit Mulai")
-        jamakhir = input("Masukkan Jam Berakhir")
-        menitakhir = input("Masukkan Menit Berakhir")
-        if int(jammulai) or int(jamakhir) > 24:
+        jammulai = input("Masukkan Jam Mulai >> ")
+        menitmulai = input("Masukkan Menit Mulai >> ")
+        jamakhir = input("Masukkan Jam Berakhir >> ")
+        menitakhir = input("Masukkan Menit Berakhir >> ")
+        if int(jammulai) > 24 or int(jamakhir) > 24:
             print("Jam tidak exist")
-        elif int(menitmulai) or int(menitakhir) > 59:
+        elif int(menitmulai) > 59 or int(menitakhir) > 59:
             print("Menit tidak exist")
         else:
             waktu = "{}.{} s/d {}.{}".format(jammulai, menitmulai, jamakhir, menitakhir)
-        condition = [klasid, guruid, hari, tanggal, waktu]
+        condition = [int(klasid), int(guruid), hari, tanggal, waktu]
         if '' not in condition:
+            note = '-'
             jadwal = Schedule(1, klasid, guruid,
-                            hari, tanggal, waktu, 1)
+                            hari, tanggal, waktu, note)
             tempor = cursor.execute(
                 "select * from tab_schedules where DATE = ? AND TIME = ?", (jadwal.getTanggal(), jadwal.getWaktu(),))
             if tempor.fetchone() is None:
-                cursor.execute("insert into tab_schedules (class_id, teacher_id, DAY, DATE, TIME) values (?,?,?,?,?)", (
-                    jadwal.getKelas(), jadwal.getGuru(), jadwal.getHari(), jadwal.getTanggal(), jadwal.getWaktu()))
+                cursor.execute("insert into tab_schedules (class_id, teacher_id, DAY, DATE, TIME, NOTE) values (?,?,?,?,?,?)", (
+                    jadwal.getKelas(), jadwal.getGuru(), jadwal.getHari(), jadwal.getTanggal(), jadwal.getWaktu(), jadwal.getNote()))
                 conn.commit()
-                print(" >> Jadwal berhasil ditambahkan")
+                return (" >> Jadwal berhasil ditambahkan")
             else:
-                print(" >> Jadwal crash, silahkan tambahkan ulang")
+                return (" >> Jadwal crash, silahkan tambahkan ulang")
         else:
             return " >> Semua Data Jadwal harus terisi"
     
     #mengedit data jadwal
     def editJadwal(self):
+        self.lihatJadwal()
         data = []
         nomorid = input("Masukkan id jadwal yang akan diedit >> ")
         query = cursor.execute("SELECT * FROM tab_schedules WHERE id = ?", (nomorid,))
@@ -792,7 +809,7 @@ Masukkan pilihan >> """)
                 return "Data jam tidak boleh kosong"
 
         elif self.pilihan == "f": #edit catatan
-            jadwal.setNote("Masukkan catatan >> ")
+            jadwal.setNote(input("Masukkan catatan >> "))
             if jadwal.getNote() != '':
                 cursor.execute("UPDATE tab_schedules set NOTE = ? WHERE id = ?", jadwal.getNote(), nomorid)
                 conn.commit()
